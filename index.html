@@ -712,6 +712,101 @@
     border:1px solid rgba(255,255,255,.1);
   }
 
+
+  .writing-phase{
+    margin:18px 0 24px;
+    padding:18px;
+    border-radius:20px;
+    background:rgba(255,255,255,.025);
+    border:1px solid rgba(255,255,255,.08);
+  }
+  .phase-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:14px;
+  }
+  .phase-title{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-size:19px;
+    font-weight:900;
+    letter-spacing:.01em;
+  }
+  .phase-label{
+    padding:6px 10px;
+    border-radius:999px;
+    font-size:11px;
+    font-weight:900;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:#07111f;
+    background:linear-gradient(135deg,var(--cyan),#9ff3ff);
+  }
+  .phase-label.after{
+    background:linear-gradient(135deg,var(--gold),#ffb84d);
+  }
+  .info-grid{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:10px;
+    margin-top:16px;
+  }
+  details.info-box{
+    background:rgba(255,255,255,.035);
+    border:1px solid rgba(255,255,255,.07);
+    border-radius:14px;
+    padding:12px 14px;
+  }
+  details.info-box summary{
+    cursor:pointer;
+    font-weight:800;
+    color:#eff7ff;
+  }
+  details.info-box ul{
+    margin:10px 0 0;
+    padding-left:19px;
+    color:var(--muted);
+    line-height:1.55;
+    font-size:13px;
+  }
+  .after-grid{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:12px;
+  }
+  .after-card{
+    cursor:pointer;
+    padding:15px;
+    border-radius:17px;
+    background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.025));
+    border:1px solid rgba(255,255,255,.08);
+    transition:.2s ease;
+  }
+  .after-card:hover{
+    transform:translateY(-2px);
+    border-color:rgba(255,209,102,.3);
+  }
+  .after-card.selected{
+    border-color:var(--gold);
+    box-shadow:0 0 0 4px rgba(255,209,102,.07);
+    background:rgba(255,209,102,.07);
+  }
+  .after-card strong{
+    display:block;
+    margin-bottom:5px;
+  }
+  .after-card span{
+    color:var(--muted);
+    font-size:13px;
+    line-height:1.45;
+  }
+  @media(max-width:760px){
+    .info-grid,.after-grid{grid-template-columns:1fr}
+  }
+
 </style>
 </head>
 <body>
@@ -761,46 +856,56 @@ let completed = [false,false,false,false,false,false];
 let attempts = [0,0,0,0,0,0];
 let damageTakenOnLock = [false,false,false,false,false,false];
 
+function shuffledCopy(arr){
+  const copy = [...arr];
+  for(let i = copy.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+
 const locks = [
   {
     title: "Lock 1 — Sequence Puzzle",
-    subtitle: "Arrange the common Writing stages from BEFORE writing to AFTER writing. Two cards are traps.",
-    hint: "Before: Recognition → Question Analysis → Brainstorming → Plan/Organize. After: check TR, CC, GRA and LR.",
+    subtitle: "Complete TWO phases: arrange the BEFORE WRITING stages, then select all FOUR areas to check AFTER WRITING.",
+    hint: "Think about what you normally do before you start writing, and what you normally check after you finish.",
     render: renderSequence,
     check: checkSequence
   },
   {
     title: "Lock 2 — Spot the Difference",
     subtitle: "Sort the key features into Opinion Essay, Both, or Discuss + Opinion Essay.",
-    hint: "Opinion: support and defend your position. Discuss + Opinion: discuss both views and clearly give your opinion.",
+    hint: "Focus on what the question asks you to do with viewpoints and your own position.",
     render: renderSort,
     check: checkSort
   },
   {
     title: "Lock 3 — Build a Convincing Argument",
     subtitle: "Select the essential elements of a convincing argument. Watch out for weak-writing traps.",
-    hint: "Clear central idea → explain why/how → specific example → elaborate. Add a rebuttal when appropriate.",
+    hint: "Think about how a strong paragraph develops one point logically instead of listing random ideas.",
     render: renderArgument,
     check: checkArgument
   },
   {
     title: "Lock 4 — Guess the Two Reading Skills",
     subtitle: "Read the clues and type the two key skills.",
-    hint: "One helps you get the general idea; the other helps you find a specific detail quickly.",
+    hint: "Think of two speed-reading techniques used for different purposes.",
     render: renderReadingSkills,
     check: checkReadingSkills
   },
   {
     title: "Lock 5 — Password Challenge",
     subtitle: "Recover the two exact phrases to remember when doing Matching Headings.",
-    hint: "The lesson links one phrase to the List of Headings and the other to Paragraphs.",
+    hint: "Recall the two short classroom phrases connected with Matching Headings.",
     render: renderPassword,
     check: checkPassword
   },
   {
     title: "Lock 6 — Which Strategy Am I?",
     subtitle: "Classify each statement as Matching Heading, Matching Information, or Trap.",
-    hint: "Heading = overall meaning. Information = specific detail.",
+    hint: "Ask yourself whether the task is about the paragraph as a whole or locating a particular piece of information.",
     render: renderStrategy,
     check: checkStrategy
   }
@@ -929,7 +1034,7 @@ function submitCurrent(){
     showFeedback(false, "No more guessing needed — here is a stronger clue so you can keep moving.");
     const box = document.getElementById("hintbox");
     box.classList.add("show");
-    box.innerHTML = "🧠 Strong hint: " + locks[current].hint + " Try again carefully — you will not lose another heart on this Lock.";
+    box.innerHTML = "🧠 Strong hint: eliminate the obviously wrong choices first, then compare the remaining options with the question requirement. You will not lose another heart on this Lock.";
   } else {
     showFeedback(false, `Not quite. You still have ${3-attempts[current]} attempt${3-attempts[current]===1?'':'s'} on this Lock.`);
   }
@@ -941,7 +1046,7 @@ function submitCurrent(){
     fb.innerHTML = "⚠️ Strong hint unlocked. You can keep trying without losing another heart on this Lock.";
     const hb = document.getElementById("hintbox");
     hb.classList.add("show");
-    hb.innerHTML = "🧠 " + locks[current].hint;
+    hb.innerHTML = "🧠 Eliminate the trap choices first, then re-check what the question is actually asking.";
   } else {
     fb.className = "feedback show bad";
     fb.innerHTML = `⚠️ Not quite. ${3-attempts[current]} attempt${3-attempts[current]===1?'':'s'} left on this Lock.`;
@@ -954,20 +1059,67 @@ function nextLock(){
 }
 
 /* LOCK 1 */
-let sequenceItems = [
-  "Recognition","Question Analysis","Brainstorming","Plan the structure","Organize ideas",
-  "Write the response","Check TR, CC, GRA & LR",
-  "Translate every sentence into your first language","Add as many ideas as possible"
+const beforeItems = [
+  "Recognition",
+  "Question Analysis",
+  "Brainstorming",
+  "Plan the structure",
+  "Organize ideas",
+  "Translate every sentence first",
+  "Start writing without a plan"
+];
+
+const afterCriteria = [
+  ["TR","Task Response","How accurately the task is addressed"],
+  ["CC","Coherence & Cohesion","How clearly and logically the writing is organized"],
+  ["GRA","Grammatical Range & Accuracy","How accurately and flexibly grammar is used"],
+  ["LR","Lexical Resource","How appropriately and accurately vocabulary is used"]
 ];
 
 function renderSequence(){
   const c = document.getElementById("content");
   c.innerHTML = `
-    <div class="bank">
-      ${sequenceItems.map((x,i)=>`<div class="chip" onclick="addSeq('${escapeQuote(x)}', this)">${x}</div>`).join('')}
+    <div class="writing-phase">
+      <div class="phase-head">
+        <div class="phase-title">🧠 BEFORE WRITING</div>
+        <div class="phase-label">Phase 1</div>
+      </div>
+
+      <p class="small">
+        Choose the correct stages and arrange them in the right order.
+        Some cards are traps.
+      </p>
+
+      <div class="bank">
+        ${shuffledCopy(beforeItems).map(x=>`<div class="chip" onclick="addSeq('${escapeQuote(x)}', this)">${x}</div>`).join('')}
+      </div>
+
+      <div class="sequence" id="seq"></div>
     </div>
-    <div class="sequence" id="seq"></div>
-    <p class="small">Choose only the useful steps, then arrange them using ↑ and ↓.</p>`;
+
+    <div class="writing-phase">
+      <div class="phase-head">
+        <div class="phase-title">🛡️ AFTER WRITING</div>
+        <div class="phase-label after">Phase 2</div>
+      </div>
+
+      <p class="small">
+        Select the areas you should check after finishing the response.
+        Not every option is necessarily correct.
+      </p>
+
+      <div class="after-grid">
+        ${shuffledCopy([
+          ...afterCriteria.map((x,i)=>({code:x[0], name:x[1], correct:true, id:i})),
+          {code:"TS", name:"Translation Speed", correct:false},
+          {code:"MI", name:"Memorised Ideas", correct:false}
+        ]).map(x=>`
+          <div class="after-card" ${x.correct ? `data-after="${x.id}"` : `data-fake="1"`} onclick="this.classList.toggle('selected')">
+            <strong>${x.code}</strong>
+            <span>${x.name}</span>
+          </div>`).join('')}
+      </div>
+    </div>`;
 }
 
 function escapeQuote(s){ return s.replaceAll("'","\\'"); }
@@ -994,24 +1146,43 @@ function moveUp(btn){
   if(row.previousElementSibling) row.parentNode.insertBefore(row,row.previousElementSibling);
   renumber();
 }
+
 function moveDown(btn){
   const row = btn.parentElement;
   if(row.nextElementSibling) row.parentNode.insertBefore(row.nextElementSibling,row);
   renumber();
 }
+
 function removeSeq(btn,text){
   btn.parentElement.remove();
   [...document.querySelectorAll(".bank .chip")]
     .find(x=>x.textContent===text)?.classList.remove("selected");
   renumber();
 }
+
 function renumber(){
   document.querySelectorAll(".seq-item").forEach((x,i)=>x.querySelector(".seq-num").textContent=i+1);
 }
+
 function checkSequence(){
-  const ans=[...document.querySelectorAll(".seq-item")].map(x=>x.dataset.text);
-  const correct=["Recognition","Question Analysis","Brainstorming","Plan the structure","Organize ideas","Write the response","Check TR, CC, GRA & LR"];
-  return JSON.stringify(ans)===JSON.stringify(correct);
+  const before = [...document.querySelectorAll(".seq-item")].map(x=>x.dataset.text);
+  const correctBefore = [
+    "Recognition",
+    "Question Analysis",
+    "Brainstorming",
+    "Plan the structure",
+    "Organize ideas"
+  ];
+
+  const correctAfterSelected = [...document.querySelectorAll(".after-card[data-after]")]
+    .filter(x=>x.classList.contains("selected")).length;
+
+  const fakeAfterSelected = [...document.querySelectorAll(".after-card[data-fake]")]
+    .some(x=>x.classList.contains("selected"));
+
+  return JSON.stringify(before) === JSON.stringify(correctBefore)
+    && correctAfterSelected === 4
+    && !fakeAfterSelected;
 }
 
 /* LOCK 2 */
@@ -1030,7 +1201,7 @@ function renderSort(){
   const c = document.getElementById("content");
   c.innerHTML = `
     <div class="bank" id="sortbank">
-      ${sortItems.map((x,i)=>`<div class="chip" data-id="${i}" onclick="selectSortChip(this)">${x[0]}</div>`).join('')}
+      ${shuffledCopy(sortItems.map((x,i)=>[x[0],x[1],i])).map(x=>`<div class="chip" data-id="${x[2]}" onclick="selectSortChip(this)">${x[0]}</div>`).join('')}
     </div>
     <div class="columns">
       <div class="bucket" data-bucket="opinion" onclick="dropSelected(this)">
@@ -1080,8 +1251,8 @@ const argumentOptions = [
 function renderArgument(){
   const c=document.getElementById("content");
   c.innerHTML = `<div class="argument-grid">
-    ${argumentOptions.map((x,i)=>`
-      <div class="card" data-arg="${i}" onclick="this.classList.toggle('selected')">
+    ${shuffledCopy(argumentOptions.map((x,i)=>[x[0],x[1],i])).map(x=>`
+      <div class="card" data-arg="${x[2]}" onclick="this.classList.toggle('selected')">
         ${x[0]}
       </div>`).join('')}
   </div>
@@ -1141,10 +1312,10 @@ function renderStrategy(){
   const c=document.getElementById("content");
   c.innerHTML = `
     <div class="cards">
-      ${statements.map((x,i)=>`
+      ${shuffledCopy(statements.map((x,i)=>[x[0],x[1],i])).map(x=>`
         <div class="card">
           <div style="margin-bottom:10px">${x[0]}</div>
-          <select data-st="${i}">
+          <select data-st="${x[2]}">
             <option value="">Choose...</option>
             <option value="heading">True — Matching Headings</option>
             <option value="info">True — Matching Information</option>
