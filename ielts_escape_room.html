@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>IELTS Escape Room</title>
+<style>
+  :root{
+    --bg:#07111f;
+    --bg2:#0b1630;
+    --panel:rgba(10,20,40,.72);
+    --panel-2:rgba(18,32,58,.78);
+    --line:rgba(255,255,255,.10);
+    --text:#f8fbff;
+    --muted:#a9b7cc;
+    --cyan:#4de4ff;
+    --violet:#8b7cff;
+    --gold:#ffd166;
+    --green:#43e08d;
+    --red:#ff6b7a;
+    --shadow:0 26px 80px rgba(0,0,0,.42);
+  }
+
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    min-height:100vh;
+    font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color:var(--text);
+    background:
+      radial-gradient(circle at 15% 20%, rgba(77,228,255,.12), transparent 28%),
+      radial-gradient(circle at 85% 18%, rgba(139,124,255,.15), transparent 30%),
+      radial-gradient(circle at 50% 90%, rgba(255,209,102,.08), transparent 32%),
+      linear-gradient(135deg,var(--bg),var(--bg2) 55%,#111338);
+    overflow-x:hidden;
+  }
+
+  body::before,
+  body::after{
+    content:"";
+    position:fixed;
+    inset:auto;
+    width:420px;height:420px;
+    border-radius:50%;
+    filter:blur(90px);
+    opacity:.18;
+    z-index:-2;
+    animation:floatOrb 12s ease-in-out infinite;
+  }
+  body::before{background:var(--cyan);top:-100px;left:-100px}
+  body::after{background:var(--violet);right:-120px;bottom:-140px;animation-delay:-5s}
+
+  @keyframes floatOrb{
+    0%,100%{transform:translate(0,0) scale(1)}
+    50%{transform:translate(25px,-18px) scale(1.08)}
+  }
+
+  .grid-overlay{
+    position:fixed;
+    inset:0;
+    background-image:
+      linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+    background-size:32px 32px;
+    mask-image:linear-gradient(to bottom,rgba(0,0,0,.7),transparent 95%);
+    z-index:-3;
+  }
+
+  .app{
+    width:min(1180px,94%);
+    margin:auto;
+    padding:28px 0 54px;
+  }
+
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:18px;
+    flex-wrap:wrap;
+    margin-bottom:22px;
+  }
+
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:14px;
+  }
+
+  .brand-mark{
+    width:54px;height:54px;
+    border-radius:18px;
+    display:grid;
+    place-items:center;
+    font-size:28px;
+    background:linear-gradient(145deg,rgba(77,228,255,.18),rgba(139,124,255,.2));
+    border:1px solid rgba(255,255,255,.12);
+    box-shadow:0 10px 30px rgba(77,228,255,.08);
+    backdrop-filter:blur(12px);
+  }
+
+  .brand h1{
+    margin:0;
+    font-size:clamp(24px,4vw,40px);
+    letter-spacing:-.03em;
+  }
+
+  .brand p{
+    margin:4px 0 0;
+    color:var(--muted);
+    font-size:14px;
+  }
+
+  .stats{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+
+  .stat{
+    min-width:108px;
+    padding:10px 14px;
+    border-radius:16px;
+    background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.035));
+    border:1px solid var(--line);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
+    backdrop-filter:blur(14px);
+    text-align:center;
+  }
+
+  .stat span{
+    display:block;
+    font-size:12px;
+    color:var(--muted);
+    text-transform:uppercase;
+    letter-spacing:.12em;
+  }
+
+  .stat strong{
+    display:block;
+    margin-top:3px;
+    font-size:22px;
+  }
+
+  .panel{
+    position:relative;
+    overflow:hidden;
+    background:linear-gradient(180deg,rgba(13,24,46,.82),rgba(8,17,34,.86));
+    border:1px solid rgba(255,255,255,.10);
+    border-radius:30px;
+    padding:30px;
+    box-shadow:var(--shadow);
+    backdrop-filter:blur(22px);
+  }
+
+  .panel::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:
+      linear-gradient(120deg,transparent 0%,rgba(255,255,255,.03) 35%,transparent 70%);
+    pointer-events:none;
+  }
+
+  .intro{
+    position:relative;
+    text-align:center;
+    padding:62px 24px 58px;
+  }
+
+  .hero-art{
+    width:min(500px,92%);
+    margin:0 auto 26px;
+    aspect-ratio:16/7;
+    position:relative;
+    display:grid;
+    place-items:center;
+  }
+
+  .door{
+    width:160px;
+    height:210px;
+    border-radius:80px 80px 18px 18px;
+    background:
+      radial-gradient(circle at 50% 45%,rgba(77,228,255,.15),transparent 40%),
+      linear-gradient(180deg,#152443,#091426);
+    border:2px solid rgba(77,228,255,.45);
+    box-shadow:
+      0 0 0 10px rgba(77,228,255,.03),
+      0 0 40px rgba(77,228,255,.18),
+      inset 0 0 30px rgba(77,228,255,.05);
+    position:relative;
+    animation:doorPulse 3.3s ease-in-out infinite;
+  }
+
+  .door::before{
+    content:"";
+    position:absolute;
+    inset:18px;
+    border-radius:64px 64px 12px 12px;
+    border:1px solid rgba(255,255,255,.08);
+  }
+
+  .keyhole{
+    position:absolute;
+    left:50%;top:48%;
+    transform:translate(-50%,-50%);
+    width:30px;height:30px;
+    border-radius:50%;
+    background:var(--gold);
+    box-shadow:0 0 24px rgba(255,209,102,.65);
+  }
+  .keyhole::after{
+    content:"";
+    position:absolute;
+    left:50%;top:20px;
+    transform:translateX(-50%);
+    width:12px;height:30px;
+    clip-path:polygon(35% 0,65% 0,100% 100%,0 100%);
+    background:var(--gold);
+  }
+
+  .orbit{
+    position:absolute;
+    inset:5% 2%;
+    border:1px dashed rgba(139,124,255,.35);
+    border-radius:50%;
+    animation:spin 18s linear infinite;
+  }
+  .orbit::before,.orbit::after{
+    content:"";
+    position:absolute;
+    width:12px;height:12px;border-radius:50%;
+    background:var(--cyan);
+    box-shadow:0 0 16px rgba(77,228,255,.75);
+  }
+  .orbit::before{top:12%;left:12%}
+  .orbit::after{right:10%;bottom:15%;background:var(--violet)}
+
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes doorPulse{
+    0%,100%{transform:translateY(0);box-shadow:0 0 0 10px rgba(77,228,255,.03),0 0 40px rgba(77,228,255,.14)}
+    50%{transform:translateY(-6px);box-shadow:0 0 0 12px rgba(77,228,255,.04),0 0 58px rgba(77,228,255,.24)}
+  }
+
+  .intro h2{
+    margin:0;
+    font-size:clamp(30px,5vw,52px);
+    letter-spacing:-.04em;
+  }
+
+  .intro p{
+    max-width:740px;
+    margin:14px auto 28px;
+    color:var(--muted);
+    font-size:16px;
+    line-height:1.7;
+  }
+
+  .badge{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 12px;
+    border-radius:999px;
+    font-size:13px;
+    color:#dff8ff;
+    background:rgba(77,228,255,.08);
+    border:1px solid rgba(77,228,255,.18);
+    margin-bottom:16px;
+  }
+
+  button{
+    border:0;
+    border-radius:14px;
+    padding:12px 18px;
+    font-weight:800;
+    cursor:pointer;
+    transition:.22s ease;
+    font-size:14px;
+  }
+
+  button:hover{transform:translateY(-2px)}
+  button:active{transform:translateY(0)}
+
+  .primary{
+    color:#08111f;
+    background:linear-gradient(135deg,var(--gold),#ffb84d);
+    box-shadow:0 8px 24px rgba(255,209,102,.18);
+  }
+
+  .secondary{
+    color:white;
+    background:linear-gradient(180deg,#2b3851,#202b40);
+    border:1px solid rgba(255,255,255,.08);
+  }
+
+  .navlocks{
+    display:grid;
+    grid-template-columns:repeat(6,1fr);
+    gap:10px;
+    margin-bottom:24px;
+  }
+
+  .locktab{
+    position:relative;
+    padding:13px 8px;
+    border-radius:15px;
+    background:rgba(255,255,255,.035);
+    border:1px solid rgba(255,255,255,.08);
+    color:#8391a7;
+    text-align:center;
+    font-size:13px;
+    overflow:hidden;
+  }
+
+  .locktab::before{
+    content:"";
+    position:absolute;
+    left:0;bottom:0;
+    height:3px;width:100%;
+    background:transparent;
+  }
+
+  .locktab.active{
+    color:#fff;
+    background:linear-gradient(180deg,rgba(139,124,255,.22),rgba(77,228,255,.08));
+    border-color:rgba(139,124,255,.38);
+  }
+
+  .locktab.active::before{
+    background:linear-gradient(90deg,var(--violet),var(--cyan));
+  }
+
+  .locktab.done{
+    color:#e9fff4;
+    background:rgba(67,224,141,.11);
+    border-color:rgba(67,224,141,.25);
+  }
+
+  .locktab.done::before{background:var(--green)}
+
+  .question-title{
+    font-size:clamp(24px,4vw,34px);
+    margin-bottom:6px;
+    letter-spacing:-.025em;
+  }
+
+  .question-sub{
+    color:var(--muted);
+    line-height:1.6;
+    margin-bottom:22px;
+    max-width:800px;
+  }
+
+  .bank{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-bottom:18px;
+  }
+
+  .chip{
+    background:linear-gradient(180deg,#27344d,#1b263b);
+    color:#eef4ff;
+    border:1px solid rgba(255,255,255,.08);
+    padding:10px 13px;
+    border-radius:999px;
+    cursor:pointer;
+    box-shadow:0 7px 18px rgba(0,0,0,.16);
+    transition:.2s ease;
+  }
+
+  .chip:hover{
+    transform:translateY(-2px);
+    border-color:rgba(77,228,255,.28);
+  }
+
+  .chip.selected{
+    background:linear-gradient(135deg,var(--gold),#f4a640);
+    color:#111827;
+    border-color:transparent;
+  }
+
+  .cards,.sequence{
+    display:grid;
+    gap:12px;
+  }
+
+  .card,.seq-item{
+    background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.025));
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:17px;
+    padding:15px;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.03);
+  }
+
+  .card{
+    cursor:pointer;
+    transition:.2s ease;
+  }
+
+  .card:hover{
+    transform:translateY(-2px);
+    border-color:rgba(77,228,255,.22);
+  }
+
+  .card.selected{
+    outline:2px solid var(--gold);
+    box-shadow:0 0 0 5px rgba(255,209,102,.07);
+  }
+
+  .seq-item{
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+
+  .seq-num{
+    width:36px;height:36px;
+    border-radius:12px;
+    display:grid;
+    place-items:center;
+    font-weight:900;
+    background:linear-gradient(135deg,var(--violet),#5b8dff);
+    box-shadow:0 8px 20px rgba(91,141,255,.18);
+  }
+
+  .seq-item button{
+    margin-left:auto;
+    padding:7px 10px;
+    color:white;
+    background:#27344d;
+    border:1px solid rgba(255,255,255,.06);
+  }
+  .seq-item button + button{margin-left:0}
+
+  .columns{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:14px;
+  }
+
+  .bucket{
+    min-height:210px;
+    padding:14px;
+    border-radius:20px;
+    background:rgba(255,255,255,.025);
+    border:1px dashed rgba(255,255,255,.16);
+    transition:.2s ease;
+  }
+
+  .bucket:hover{
+    border-color:rgba(77,228,255,.30);
+    background:rgba(77,228,255,.03);
+  }
+
+  .bucket h3{
+    margin:0 0 12px;
+    text-align:center;
+    font-size:16px;
+  }
+
+  .argument-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+  }
+
+  .clue{
+    position:relative;
+    overflow:hidden;
+    margin:10px 0;
+    padding:14px 16px;
+    border-radius:14px;
+    background:linear-gradient(180deg,rgba(77,228,255,.07),rgba(255,255,255,.025));
+    border:1px solid rgba(77,228,255,.14);
+    color:#eafaff;
+  }
+
+  .clue::before{
+    content:"";
+    position:absolute;
+    left:0;top:0;bottom:0;
+    width:4px;
+    background:linear-gradient(var(--cyan),var(--violet));
+  }
+
+  .input-row{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:12px;
+  }
+
+  input,select{
+    width:100%;
+    background:#0a1427;
+    color:white;
+    border:1px solid #31415f;
+    border-radius:12px;
+    padding:12px 13px;
+    font-size:15px;
+    outline:none;
+    transition:.2s ease;
+  }
+
+  input:focus,select:focus{
+    border-color:var(--cyan);
+    box-shadow:0 0 0 4px rgba(77,228,255,.08);
+  }
+
+  .feedback{
+    margin-top:18px;
+    padding:14px 16px;
+    border-radius:14px;
+    display:none;
+    line-height:1.5;
+    border:1px solid transparent;
+    animation:pop .24s ease;
+  }
+
+  @keyframes pop{
+    from{transform:scale(.98);opacity:0}
+    to{transform:scale(1);opacity:1}
+  }
+
+  .feedback.show{display:block}
+  .feedback.ok{
+    background:rgba(67,224,141,.10);
+    border-color:rgba(67,224,141,.26);
+    color:#eafff3;
+  }
+  .feedback.bad{
+    background:rgba(255,107,122,.10);
+    border-color:rgba(255,107,122,.24);
+    color:#ffe8ec;
+  }
+
+  .controls{
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:22px;
+  }
+
+  .hintbox{
+    display:none;
+    margin-top:14px;
+    padding:14px 16px;
+    border-radius:14px;
+    background:rgba(255,209,102,.09);
+    border:1px solid rgba(255,209,102,.18);
+    color:#fff8df;
+  }
+
+  .hintbox.show{display:block}
+
+  .small{
+    color:#8fa0ba;
+    font-size:13px;
+    line-height:1.5;
+  }
+
+  .final{
+    text-align:center;
+    padding:56px 20px;
+  }
+
+  .trophy-wrap{
+    width:130px;height:130px;
+    margin:0 auto 18px;
+    border-radius:34px;
+    display:grid;
+    place-items:center;
+    font-size:68px;
+    background:linear-gradient(145deg,rgba(255,209,102,.16),rgba(139,124,255,.12));
+    border:1px solid rgba(255,255,255,.10);
+    box-shadow:0 20px 60px rgba(255,209,102,.10);
+    animation:celebrate 1.6s ease-in-out infinite alternate;
+  }
+
+  @keyframes celebrate{
+    from{transform:translateY(0) rotate(-2deg)}
+    to{transform:translateY(-8px) rotate(2deg)}
+  }
+
+  .final h2{
+    font-size:clamp(32px,5vw,50px);
+    margin:8px 0 10px;
+  }
+
+  .final p{color:var(--muted)}
+
+  .final-score{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:12px;
+    margin:14px auto 24px;
+    padding:14px 20px;
+    border-radius:18px;
+    background:rgba(255,255,255,.05);
+    border:1px solid var(--line);
+  }
+
+  .final-score strong{
+    font-size:30px;
+    color:var(--gold);
+  }
+
+  @media (max-width:760px){
+    .columns,.argument-grid{grid-template-columns:1fr}
+    .navlocks{grid-template-columns:repeat(3,1fr)}
+    .panel{padding:20px}
+    .intro{padding:40px 10px}
+    .stats{width:100%}
+    .stat{flex:1}
+  }
+
+  .health-wrap{
+    min-width:150px;
+    padding:10px 14px;
+    border-radius:16px;
+    background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.035));
+    border:1px solid var(--line);
+    backdrop-filter:blur(14px);
+  }
+  .health-title{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-size:12px;
+    color:var(--muted);
+    text-transform:uppercase;
+    letter-spacing:.11em;
+    margin-bottom:7px;
+  }
+  .hearts{
+    display:flex;
+    gap:6px;
+    font-size:23px;
+    line-height:1;
+  }
+  .heart{
+    display:inline-block;
+    transition:.25s ease;
+    filter:drop-shadow(0 0 7px rgba(255,107,122,.25));
+  }
+  .heart.lost{
+    opacity:.22;
+    filter:grayscale(1);
+    transform:scale(.85);
+  }
+  .heart.damage{
+    animation:heartHit .5s ease;
+  }
+  @keyframes heartHit{
+    0%{transform:scale(1)}
+    35%{transform:scale(1.35) rotate(-10deg)}
+    70%{transform:scale(.8) rotate(8deg)}
+    100%{transform:scale(1)}
+  }
+  .screen-hit{
+    animation:screenHit .42s ease;
+  }
+  @keyframes screenHit{
+    0%,100%{transform:translateX(0);box-shadow:var(--shadow)}
+    20%{transform:translateX(-7px);box-shadow:0 0 0 9999px rgba(255,70,90,.07),var(--shadow)}
+    40%{transform:translateX(6px)}
+    60%{transform:translateX(-4px)}
+    80%{transform:translateX(2px)}
+  }
+  .attempts{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    margin-top:8px;
+    color:var(--muted);
+    font-size:13px;
+  }
+  .attempt-dot{
+    width:10px;height:10px;border-radius:50%;
+    background:#41506b;
+    border:1px solid rgba(255,255,255,.08);
+  }
+  .attempt-dot.used{
+    background:var(--red);
+    box-shadow:0 0 10px rgba(255,107,122,.35);
+  }
+  .soft-hint{
+    margin-top:12px;
+    padding:13px 15px;
+    border-radius:14px;
+    background:rgba(77,228,255,.07);
+    border:1px solid rgba(77,228,255,.15);
+    color:#ddfaff;
+  }
+  .gameover{
+    text-align:center;
+    padding:54px 20px;
+  }
+  .gameover-icon{
+    width:125px;height:125px;
+    margin:0 auto 18px;
+    border-radius:34px;
+    display:grid;place-items:center;
+    font-size:64px;
+    background:linear-gradient(145deg,rgba(255,107,122,.15),rgba(139,124,255,.08));
+    border:1px solid rgba(255,255,255,.1);
+  }
+
+</style>
+</head>
+<body>
+<div class="grid-overlay"></div>
+
+<div class="app">
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark">🗝️</div>
+      <div>
+        <h1>IELTS Escape Room</h1>
+        <p>Writing & Reading Strategy Challenge</p>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="health-wrap">
+        <div class="health-title"><span>HP</span><span id="hpText">3/3</span></div>
+        <div class="hearts" id="hearts">
+          <span class="heart">❤️</span>
+          <span class="heart">❤️</span>
+          <span class="heart">❤️</span>
+        </div>
+      </div>
+      <div class="stat"><span>Score</span><strong id="score">0</strong></div>
+      <div class="stat"><span>Hint</span><strong id="hintCount">1</strong></div>
+      <div class="stat"><span>Locks</span><strong id="locksDone">0/6</strong></div>
+    </div>
+  </div>
+
+  <div class="panel" id="game"></div>
+</div>
+
+<script>
+const game = document.getElementById('game');
+const scoreEl = document.getElementById('score');
+const hintCountEl = document.getElementById('hintCount');
+const locksDoneEl = document.getElementById('locksDone');
+const hpTextEl = document.getElementById('hpText');
+const heartsEl = document.getElementById('hearts');
+
+let score = 0;
+let current = -1;
+let hintLeft = 1;
+let hp = 3;
+let completed = [false,false,false,false,false,false];
+let attempts = [0,0,0,0,0,0];
+let damageTakenOnLock = [false,false,false,false,false,false];
+
+const locks = [
+  {
+    title: "Lock 1 — Sequence Puzzle",
+    subtitle: "Arrange the common Writing stages from BEFORE writing to AFTER writing. Two cards are traps.",
+    hint: "Before: Recognition → Question Analysis → Brainstorming → Plan/Organize. After: check TR, CC, GRA and LR.",
+    render: renderSequence,
+    check: checkSequence
+  },
+  {
+    title: "Lock 2 — Spot the Difference",
+    subtitle: "Sort the key features into Opinion Essay, Both, or Discuss + Opinion Essay.",
+    hint: "Opinion: support and defend your position. Discuss + Opinion: discuss both views and clearly give your opinion.",
+    render: renderSort,
+    check: checkSort
+  },
+  {
+    title: "Lock 3 — Build a Convincing Argument",
+    subtitle: "Select the essential elements of a convincing argument. Watch out for weak-writing traps.",
+    hint: "Clear central idea → explain why/how → specific example → elaborate. Add a rebuttal when appropriate.",
+    render: renderArgument,
+    check: checkArgument
+  },
+  {
+    title: "Lock 4 — Guess the Two Reading Skills",
+    subtitle: "Read the clues and type the two key skills.",
+    hint: "One helps you get the general idea; the other helps you find a specific detail quickly.",
+    render: renderReadingSkills,
+    check: checkReadingSkills
+  },
+  {
+    title: "Lock 5 — Password Challenge",
+    subtitle: "Recover the two exact phrases to remember when doing Matching Headings.",
+    hint: "The lesson links one phrase to the List of Headings and the other to Paragraphs.",
+    render: renderPassword,
+    check: checkPassword
+  },
+  {
+    title: "Lock 6 — Which Strategy Am I?",
+    subtitle: "Classify each statement as Matching Heading, Matching Information, or Trap.",
+    hint: "Heading = overall meaning. Information = specific detail.",
+    render: renderStrategy,
+    check: checkStrategy
+  }
+];
+
+function updateStats(){
+  scoreEl.textContent = score;
+  hintCountEl.textContent = hintLeft;
+  locksDoneEl.textContent = completed.filter(Boolean).length + "/6";
+  hpTextEl.textContent = hp + "/3";
+  [...heartsEl.children].forEach((h,i)=>{
+    h.classList.toggle("lost", i >= hp);
+  });
+}
+
+function nav(){
+  return `<div class="navlocks">
+    ${locks.map((_,i)=>`<div class="locktab ${completed[i]?'done':''} ${i===current?'active':''}">
+      ${completed[i]?'✓ ':'🔒 '}Lock ${i+1}
+    </div>`).join('')}
+  </div>`;
+}
+
+function startScreen(){
+  current = -1;
+  game.innerHTML = `
+    <div class="intro">
+      <div class="badge">MISSION 01 • IELTS STRATEGY VAULT</div>
+      <div class="hero-art">
+        <div class="orbit"></div>
+        <div class="door"><div class="keyhole"></div></div>
+      </div>
+      <h2>Your IELTS notes are locked.</h2>
+      <p>
+        Six strategy locks stand between you and the IELTS Master Key.
+        Solve each challenge, avoid the traps, and escape with the highest score possible.
+      </p>
+      <button class="primary" onclick="goLock(0)">Enter the Vault</button>
+    </div>`;
+}
+
+function goLock(i){
+  current = i;
+  game.innerHTML = nav() + `
+    <div class="question-title">${locks[i].title}</div>
+    <div class="question-sub">${locks[i].subtitle}</div>
+    <div class="attempts">
+      <span>Attempts:</span>
+      <span class="attempt-dot ${attempts[i] >= 1 ? 'used' : ''}"></span>
+      <span class="attempt-dot ${attempts[i] >= 2 ? 'used' : ''}"></span>
+      <span class="attempt-dot ${attempts[i] >= 3 ? 'used' : ''}"></span>
+    </div>
+    <div id="content" style="margin-top:14px"></div>
+    <div id="hintbox" class="hintbox">💡 ${locks[i].hint}</div>
+    <div id="feedback" class="feedback"></div>
+    <div class="controls">
+      <button class="secondary" onclick="useHint()">Use Hint</button>
+      <button class="primary" onclick="submitCurrent()">Unlock</button>
+    </div>`;
+  locks[i].render();
+}
+
+function useHint(){
+  if(hintLeft <= 0){
+    showFeedback(false,"No hints left. You have to crack this one yourself.");
+    return;
+  }
+  hintLeft--;
+  updateStats();
+  document.getElementById("hintbox").classList.add("show");
+}
+
+function showFeedback(ok,msg){
+  const box = document.getElementById("feedback");
+  box.className = "feedback show " + (ok?"ok":"bad");
+  box.innerHTML = ok ? `✅ ${msg}` : `⚠️ ${msg}`;
+}
+
+function submitCurrent(){
+  if(completed[current]){
+    nextLock();
+    return;
+  }
+
+  const ok = locks[current].check();
+
+  if(ok){
+    score += attempts[current] === 0 ? 10 : attempts[current] === 1 ? 8 : 6;
+    completed[current] = true;
+    updateStats();
+    const gained = attempts[current] === 0 ? 10 : attempts[current] === 1 ? 8 : 6;
+    showFeedback(true, `Lock opened. +${gained} points.`);
+    const btns = document.querySelectorAll(".controls button");
+    btns[1].textContent = current === 5 ? "Claim Master Key" : "Next Lock";
+    btns[1].onclick = nextLock;
+    return;
+  }
+
+  attempts[current]++;
+
+  if(!damageTakenOnLock[current]){
+    hp = Math.max(0, hp - 1);
+    damageTakenOnLock[current] = true;
+    const panel = document.querySelector(".panel");
+    panel.classList.remove("screen-hit");
+    void panel.offsetWidth;
+    panel.classList.add("screen-hit");
+
+    const visibleHearts = [...heartsEl.children].filter((h,i)=>i >= hp);
+    if(visibleHearts.length){
+      const target = visibleHearts[0];
+      target.classList.remove("damage");
+      void target.offsetWidth;
+      target.classList.add("damage");
+    }
+  }
+
+  updateStats();
+
+  if(hp <= 0){
+    gameOver();
+    return;
+  }
+
+  if(attempts[current] >= 3){
+    showFeedback(false, "No more guessing needed — here is a stronger clue so you can keep moving.");
+    const box = document.getElementById("hintbox");
+    box.classList.add("show");
+    box.innerHTML = "🧠 Strong hint: " + locks[current].hint + " Try again carefully — you will not lose another heart on this Lock.";
+  } else {
+    showFeedback(false, `Not quite. You still have ${3-attempts[current]} attempt${3-attempts[current]===1?'':'s'} on this Lock.`);
+  }
+
+  goLock(current);
+  const fb = document.getElementById("feedback");
+  if(attempts[current] >= 3){
+    fb.className = "feedback show bad";
+    fb.innerHTML = "⚠️ Strong hint unlocked. You can keep trying without losing another heart on this Lock.";
+    const hb = document.getElementById("hintbox");
+    hb.classList.add("show");
+    hb.innerHTML = "🧠 " + locks[current].hint;
+  } else {
+    fb.className = "feedback show bad";
+    fb.innerHTML = `⚠️ Not quite. ${3-attempts[current]} attempt${3-attempts[current]===1?'':'s'} left on this Lock.`;
+  }
+}
+
+function nextLock(){
+  if(current < 5) goLock(current+1);
+  else finishGame();
+}
+
+/* LOCK 1 */
+let sequenceItems = [
+  "Recognition","Question Analysis","Brainstorming","Plan the structure","Organize ideas",
+  "Write the response","Check TR, CC, GRA & LR",
+  "Translate every sentence into your first language","Add as many ideas as possible"
+];
+
+function renderSequence(){
+  const c = document.getElementById("content");
+  c.innerHTML = `
+    <div class="bank">
+      ${sequenceItems.map((x,i)=>`<div class="chip" onclick="addSeq('${escapeQuote(x)}', this)">${x}</div>`).join('')}
+    </div>
+    <div class="sequence" id="seq"></div>
+    <p class="small">Choose only the useful steps, then arrange them using ↑ and ↓.</p>`;
+}
+
+function escapeQuote(s){ return s.replaceAll("'","\\'"); }
+
+function addSeq(text, el){
+  if(el.classList.contains("selected")) return;
+  el.classList.add("selected");
+  const seq = document.getElementById("seq");
+  const row = document.createElement("div");
+  row.className = "seq-item";
+  row.dataset.text = text;
+  row.innerHTML = `
+    <div class="seq-num"></div>
+    <span>${text}</span>
+    <button onclick="moveUp(this)">↑</button>
+    <button onclick="moveDown(this)">↓</button>
+    <button onclick="removeSeq(this,'${escapeQuote(text)}')">✕</button>`;
+  seq.appendChild(row);
+  renumber();
+}
+
+function moveUp(btn){
+  const row = btn.parentElement;
+  if(row.previousElementSibling) row.parentNode.insertBefore(row,row.previousElementSibling);
+  renumber();
+}
+function moveDown(btn){
+  const row = btn.parentElement;
+  if(row.nextElementSibling) row.parentNode.insertBefore(row.nextElementSibling,row);
+  renumber();
+}
+function removeSeq(btn,text){
+  btn.parentElement.remove();
+  [...document.querySelectorAll(".bank .chip")]
+    .find(x=>x.textContent===text)?.classList.remove("selected");
+  renumber();
+}
+function renumber(){
+  document.querySelectorAll(".seq-item").forEach((x,i)=>x.querySelector(".seq-num").textContent=i+1);
+}
+function checkSequence(){
+  const ans=[...document.querySelectorAll(".seq-item")].map(x=>x.dataset.text);
+  const correct=["Recognition","Question Analysis","Brainstorming","Plan the structure","Organize ideas","Write the response","Check TR, CC, GRA & LR"];
+  return JSON.stringify(ans)===JSON.stringify(correct);
+}
+
+/* LOCK 2 */
+const sortItems = [
+  ["Support your own position with reasons","opinion"],
+  ["Discuss BOTH views","discuss"],
+  ["Give your own opinion","both"],
+  ["Opinion should be clear throughout","opinion"],
+  ["View 1 can be weaker; View 2 stronger + your opinion","discuss"],
+  ["Use clear body paragraphs to address the task","both"]
+];
+
+let selectedChip = null;
+
+function renderSort(){
+  const c = document.getElementById("content");
+  c.innerHTML = `
+    <div class="bank" id="sortbank">
+      ${sortItems.map((x,i)=>`<div class="chip" data-id="${i}" onclick="selectSortChip(this)">${x[0]}</div>`).join('')}
+    </div>
+    <div class="columns">
+      <div class="bucket" data-bucket="opinion" onclick="dropSelected(this)">
+        <h3>🧭 Opinion</h3>
+      </div>
+      <div class="bucket" data-bucket="both" onclick="dropSelected(this)">
+        <h3>⚖️ Both</h3>
+      </div>
+      <div class="bucket" data-bucket="discuss" onclick="dropSelected(this)">
+        <h3>🗣️ Discuss + Opinion</h3>
+      </div>
+    </div>
+    <p class="small">Click a card, then click the category where it belongs.</p>`;
+}
+
+function selectSortChip(el){
+  document.querySelectorAll(".chip").forEach(x=>x.classList.remove("selected"));
+  selectedChip = el;
+  el.classList.add("selected");
+}
+function dropSelected(bucket){
+  if(!selectedChip) return;
+  bucket.appendChild(selectedChip);
+  selectedChip.classList.remove("selected");
+  selectedChip = null;
+}
+function checkSort(){
+  for(const [i,item] of sortItems.entries()){
+    const chip = document.querySelector(`[data-id="${i}"]`);
+    const bucket = chip.closest(".bucket");
+    if(!bucket || bucket.dataset.bucket !== item[1]) return false;
+  }
+  return true;
+}
+
+/* LOCK 3 */
+const argumentOptions = [
+  ["Clear central idea",true],
+  ["Explain why / how",true],
+  ["Specific & relevant example",true],
+  ["Elaborate how the example supports the argument",true],
+  ["Rebuttal when appropriate",true],
+  ["Many vague examples",false],
+  ["Unnecessary statistics",false]
+];
+
+function renderArgument(){
+  const c=document.getElementById("content");
+  c.innerHTML = `<div class="argument-grid">
+    ${argumentOptions.map((x,i)=>`
+      <div class="card" data-arg="${i}" onclick="this.classList.toggle('selected')">
+        ${x[0]}
+      </div>`).join('')}
+  </div>
+  <p class="small">Select the strong elements. A rebuttal is useful when appropriate.</p>`;
+}
+
+function checkArgument(){
+  return argumentOptions.every((x,i)=>{
+    const chosen = document.querySelector(`[data-arg="${i}"]`).classList.contains("selected");
+    return chosen === x[1];
+  });
+}
+
+/* LOCK 4 */
+function renderReadingSkills(){
+  const c=document.getElementById("content");
+  c.innerHTML = `
+    <div class="clue">Skill 1: I help you read quickly to understand the main idea and overall structure of a passage.</div>
+    <div class="clue">Skill 2: I help you quickly locate specific information, keywords, names, numbers, or synonyms related to the question.</div>
+    <div class="input-row"><input id="skill1" placeholder="Type Skill 1"></div>
+    <div class="input-row"><input id="skill2" placeholder="Type Skill 2"></div>`;
+}
+function norm(s){ return s.toLowerCase().trim().replace(/\s+/g," "); }
+function checkReadingSkills(){
+  const a = norm(document.getElementById("skill1").value);
+  const b = norm(document.getElementById("skill2").value);
+  return ["skimming","skim"].includes(a) && ["scanning","scan"].includes(b);
+}
+
+/* LOCK 5 */
+function renderPassword(){
+  const c=document.getElementById("content");
+  c.innerHTML = `
+    <div class="clue">Phrase 1: ________ words → List of Headings</div>
+    <div class="clue">Phrase 2: Sentence ________ → Paragraphs</div>
+    <div class="input-row"><input id="p1" placeholder="Phrase 1"></div>
+    <div class="input-row"><input id="p2" placeholder="Phrase 2"></div>
+    <p class="small">Type the exact key words from the lesson.</p>`;
+}
+function checkPassword(){
+  const a=norm(document.getElementById("p1").value);
+  const b=norm(document.getElementById("p2").value);
+  return ["organizing","organising"].includes(a) && b==="function";
+}
+
+/* LOCK 6 */
+const statements = [
+  ["Matching Information: one paragraph can contain MORE THAN ONE piece of information.","info"],
+  ["Matching Headings: identify the overall meaning / main idea of a paragraph.","heading"],
+  ["Matching Information: scan paragraphs for specific information.","info"],
+  ["Matching Headings: each paragraph is matched with ONE heading.","heading"],
+  ["Matching Headings: focus mainly on specific details.","trap"],
+  ["Matching Information: always choose only one answer for each paragraph.","trap"]
+];
+
+function renderStrategy(){
+  const c=document.getElementById("content");
+  c.innerHTML = `
+    <div class="cards">
+      ${statements.map((x,i)=>`
+        <div class="card">
+          <div style="margin-bottom:10px">${x[0]}</div>
+          <select data-st="${i}">
+            <option value="">Choose...</option>
+            <option value="heading">True — Matching Headings</option>
+            <option value="info">True — Matching Information</option>
+            <option value="trap">False / Trap</option>
+          </select>
+        </div>`).join('')}
+    </div>`;
+}
+
+function checkStrategy(){
+  return statements.every((x,i)=>document.querySelector(`[data-st="${i}"]`).value===x[1]);
+}
+
+
+function gameOver(){
+  game.innerHTML = `
+    <div class="gameover">
+      <div class="gameover-icon">💔</div>
+      <div class="badge">MISSION FAILED • BUT YOU CAN RETRY</div>
+      <h2 style="font-size:clamp(32px,5vw,50px);margin:8px 0 10px">Game Over</h2>
+      <p style="color:var(--muted);max-width:620px;margin:0 auto 24px">
+        You ran out of hearts, but the game is designed to be forgiving. Restart and use what you learned from the previous locks.
+      </p>
+      <button class="primary" onclick="restart()">Try Again</button>
+    </div>`;
+}
+
+function finishGame(){
+  const rank = hp === 3 ? "S" : hp === 2 ? "A" : hp === 1 ? "B" : "C";
+  game.innerHTML = `
+    <div class="final">
+      <div class="trophy-wrap">🏆</div>
+      <div class="badge">VAULT CLEARED • MASTER KEY FOUND</div>
+      <h2>IELTS Master Key Recovered!</h2>
+      <p>You unlocked all six strategy locks and escaped the vault.</p>
+      <div class="final-score">
+        <span>Final Score</span>
+        <strong>${score}</strong>
+      </div>
+      <div class="final-score">
+        <span>Rank</span>
+        <strong>${rank}</strong>
+      </div>
+      <p class="small">Rank S = no hearts lost • A = 2 hearts left • B = 1 heart left.</p>
+      <br>
+      <button class="primary" onclick="restart()">Play Again</button>
+    </div>`;
+}
+
+function restart(){
+  score=0;
+  current=-1;
+  hintLeft=1;
+  hp=3;
+  completed=[false,false,false,false,false,false];
+  attempts=[0,0,0,0,0,0];
+  damageTakenOnLock=[false,false,false,false,false,false];
+  updateStats();
+  startScreen();
+}
+
+updateStats();
+startScreen();
+</script>
+</body>
+</html>
