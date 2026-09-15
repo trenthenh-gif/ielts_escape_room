@@ -1,461 +1,1648 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IELTS Escape Room - V5 Fixed</title>
-    <style>
-        :root {
-            --bg-color: #121212;
-            --card-bg: #1e1e1e;
-            --primary: #00e5ff;
-            --danger: #ff2a2a;
-            --success: #00e676;
-            --text: #e0e0e0;
-        }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>IELTS Escape Room</title>
+<style>
+  :root{
+    --bg:#07111f;
+    --bg2:#0b1630;
+    --panel:rgba(10,20,40,.72);
+    --panel-2:rgba(18,32,58,.78);
+    --line:rgba(255,255,255,.10);
+    --text:#f8fbff;
+    --muted:#a9b7cc;
+    --cyan:#4de4ff;
+    --violet:#8b7cff;
+    --gold:#ffd166;
+    --green:#43e08d;
+    --red:#ff6b7a;
+    --shadow:0 26px 80px rgba(0,0,0,.42);
+  }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-            box-sizing: border-box;
-        }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    min-height:100vh;
+    font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color:var(--text);
+    background:
+      radial-gradient(circle at 15% 20%, rgba(77,228,255,.12), transparent 28%),
+      radial-gradient(circle at 85% 18%, rgba(139,124,255,.15), transparent 30%),
+      radial-gradient(circle at 50% 90%, rgba(255,209,102,.08), transparent 32%),
+      linear-gradient(135deg,var(--bg),var(--bg2) 55%,#111338);
+    overflow-x:hidden;
+  }
 
-        /* Wrapper để gắn hiệu ứng rung và nháy đỏ */
-        #game-wrapper {
-            width: 100%;
-            max-width: 600px;
-            background: var(--card-bg);
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            padding: 30px;
-            position: relative;
-            overflow: hidden;
-            border: 1px solid #333;
-            transition: background-color 0.3s;
-        }
+  body::before,
+  body::after{
+    content:"";
+    position:fixed;
+    inset:auto;
+    width:420px;height:420px;
+    border-radius:50%;
+    filter:blur(90px);
+    opacity:.18;
+    z-index:-2;
+    animation:floatOrb 12s ease-in-out infinite;
+  }
+  body::before{background:var(--cyan);top:-100px;left:-100px}
+  body::after{background:var(--violet);right:-120px;bottom:-140px;animation-delay:-5s}
 
-        /* --- HIỆU ỨNG TRẢ LỜI SAI (ĐÃ SỬA LỖI CHỈ CHẠY 1 LẦN) --- */
-        @keyframes shake {
-            0%, 100% { transform: translate(0, 0); }
-            10%, 30%, 50%, 70%, 90% { transform: translate(-8px, 0); }
-            20%, 40%, 60%, 80% { transform: translate(8px, 0); }
-        }
-        @keyframes flashRed {
-            0% { background-color: rgba(255, 42, 42, 0.2); box-shadow: inset 0 0 30px rgba(255, 42, 42, 0.4); }
-            100% { background-color: var(--card-bg); box-shadow: inset 0 0 0px rgba(255, 42, 42, 0); }
-        }
-        
-        .shake-effect { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
-        .flash-red-effect { animation: flashRed 0.5s ease-out both; }
+  @keyframes floatOrb{
+    0%,100%{transform:translate(0,0) scale(1)}
+    50%{transform:translate(25px,-18px) scale(1.08)}
+  }
 
-        header {
-            text-align: center;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #333;
-            padding-bottom: 15px;
-        }
+  .grid-overlay{
+    position:fixed;
+    inset:0;
+    background-image:
+      linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+    background-size:32px 32px;
+    mask-image:linear-gradient(to bottom,rgba(0,0,0,.7),transparent 95%);
+    z-index:-3;
+  }
 
-        h1 {
-            color: var(--primary);
-            margin: 0;
-            font-size: 1.8rem;
-            text-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
-        }
+  .app{
+    width:min(1180px,94%);
+    margin:auto;
+    padding:28px 0 54px;
+  }
 
-        .subtitle {
-            font-size: 0.9rem;
-            color: #888;
-            margin-top: 5px;
-        }
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:18px;
+    flex-wrap:wrap;
+    margin-bottom:22px;
+  }
 
-        .stats-bar {
-            display: flex;
-            justify-content: space-between;
-            background: #252525;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 25px;
-            font-weight: bold;
-            font-size: 0.95rem;
-        }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:14px;
+  }
 
-        .stat-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 5px;
-        }
+  .brand-mark{
+    width:54px;height:54px;
+    border-radius:18px;
+    display:grid;
+    place-items:center;
+    font-size:28px;
+    background:linear-gradient(145deg,rgba(77,228,255,.18),rgba(139,124,255,.2));
+    border:1px solid rgba(255,255,255,.12);
+    box-shadow:0 10px 30px rgba(77,228,255,.08);
+    backdrop-filter:blur(12px);
+  }
 
-        .stat-label { font-size: 0.75rem; color: #888; text-transform: uppercase; }
-        .hp-hearts { color: var(--danger); font-size: 1.2rem; letter-spacing: 2px; }
-        .lock-progress { color: var(--primary); }
+  .brand h1{
+    margin:0;
+    font-size:clamp(24px,4vw,40px);
+    letter-spacing:-.03em;
+  }
 
-        .question-area {
-            background: #2a2a2a;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            border-left: 4px solid var(--primary);
-        }
+  .brand p{
+    margin:4px 0 0;
+    color:var(--muted);
+    font-size:14px;
+  }
 
-        .lock-title {
-            color: var(--primary);
-            font-size: 0.9rem;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+  .stats{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+  }
 
-        .question-text {
-            font-size: 1.1rem;
-            line-height: 1.5;
-        }
+  .stat{
+    min-width:108px;
+    padding:10px 14px;
+    border-radius:16px;
+    background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.035));
+    border:1px solid var(--line);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
+    backdrop-filter:blur(14px);
+    text-align:center;
+  }
 
-        .options-area {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
+  .stat span{
+    display:block;
+    font-size:12px;
+    color:var(--muted);
+    text-transform:uppercase;
+    letter-spacing:.12em;
+  }
 
-        .option-btn {
-            background: #333;
-            border: 1px solid #444;
-            color: var(--text);
-            padding: 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            text-align: left;
-            font-size: 1rem;
-            transition: all 0.2s;
-        }
+  .stat strong{
+    display:block;
+    margin-top:3px;
+    font-size:22px;
+  }
 
-        .option-btn:hover {
-            background: #444;
-            border-color: var(--primary);
-            transform: translateX(5px);
-        }
+  .panel{
+    position:relative;
+    overflow:hidden;
+    background:linear-gradient(180deg,rgba(13,24,46,.82),rgba(8,17,34,.86));
+    border:1px solid rgba(255,255,255,.10);
+    border-radius:30px;
+    padding:30px;
+    box-shadow:var(--shadow);
+    backdrop-filter:blur(22px);
+  }
 
-        .option-btn.correct {
-            background: rgba(0, 230, 118, 0.2);
-            border-color: var(--success);
-            color: var(--success);
-        }
+  .panel::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:
+      linear-gradient(120deg,transparent 0%,rgba(255,255,255,.03) 35%,transparent 70%);
+    pointer-events:none;
+  }
 
-        .option-btn.wrong {
-            background: rgba(255, 42, 42, 0.2);
-            border-color: var(--danger);
-            color: var(--danger);
-        }
+  .intro{
+    position:relative;
+    text-align:center;
+    padding:62px 24px 58px;
+  }
 
-        .feedback-msg {
-            margin-top: 15px;
-            padding: 10px;
-            border-radius: 5px;
-            text-align: center;
-            font-weight: bold;
-            display: none;
-        }
+  .hero-art{
+    width:min(500px,92%);
+    margin:0 auto 26px;
+    aspect-ratio:16/7;
+    position:relative;
+    display:grid;
+    place-items:center;
+  }
 
-        .game-over-screen, .win-screen {
-            text-align: center;
-            padding: 40px 20px;
-            display: none;
-        }
+  .door{
+    width:160px;
+    height:210px;
+    border-radius:80px 80px 18px 18px;
+    background:
+      radial-gradient(circle at 50% 45%,rgba(77,228,255,.15),transparent 40%),
+      linear-gradient(180deg,#152443,#091426);
+    border:2px solid rgba(77,228,255,.45);
+    box-shadow:
+      0 0 0 10px rgba(77,228,255,.03),
+      0 0 40px rgba(77,228,255,.18),
+      inset 0 0 30px rgba(77,228,255,.05);
+    position:relative;
+    animation:doorPulse 3.3s ease-in-out infinite;
+  }
 
-        .game-over-screen h2 { color: var(--danger); font-size: 2rem; }
-        .win-screen h2 { color: var(--success); font-size: 2rem; }
+  .door::before{
+    content:"";
+    position:absolute;
+    inset:18px;
+    border-radius:64px 64px 12px 12px;
+    border:1px solid rgba(255,255,255,.08);
+  }
 
-        .restart-btn {
-            margin-top: 20px;
-            padding: 12px 30px;
-            background: var(--primary);
-            color: #000;
-            border: none;
-            border-radius: 5px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 1rem;
-        }
-        .restart-btn:hover { opacity: 0.8; }
-    </style>
+  .keyhole{
+    position:absolute;
+    left:50%;top:48%;
+    transform:translate(-50%,-50%);
+    width:30px;height:30px;
+    border-radius:50%;
+    background:var(--gold);
+    box-shadow:0 0 24px rgba(255,209,102,.65);
+  }
+  .keyhole::after{
+    content:"";
+    position:absolute;
+    left:50%;top:20px;
+    transform:translateX(-50%);
+    width:12px;height:30px;
+    clip-path:polygon(35% 0,65% 0,100% 100%,0 100%);
+    background:var(--gold);
+  }
+
+  .orbit{
+    position:absolute;
+    inset:5% 2%;
+    border:1px dashed rgba(139,124,255,.35);
+    border-radius:50%;
+    animation:spin 18s linear infinite;
+  }
+  .orbit::before,.orbit::after{
+    content:"";
+    position:absolute;
+    width:12px;height:12px;border-radius:50%;
+    background:var(--cyan);
+    box-shadow:0 0 16px rgba(77,228,255,.75);
+  }
+  .orbit::before{top:12%;left:12%}
+  .orbit::after{right:10%;bottom:15%;background:var(--violet)}
+
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes doorPulse{
+    0%,100%{transform:translateY(0);box-shadow:0 0 0 10px rgba(77,228,255,.03),0 0 40px rgba(77,228,255,.14)}
+    50%{transform:translateY(-6px);box-shadow:0 0 0 12px rgba(77,228,255,.04),0 0 58px rgba(77,228,255,.24)}
+  }
+
+  .intro h2{
+    margin:0;
+    font-size:clamp(30px,5vw,52px);
+    letter-spacing:-.04em;
+  }
+
+  .intro p{
+    max-width:740px;
+    margin:14px auto 28px;
+    color:var(--muted);
+    font-size:16px;
+    line-height:1.7;
+  }
+
+  .badge{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 12px;
+    border-radius:999px;
+    font-size:13px;
+    color:#dff8ff;
+    background:rgba(77,228,255,.08);
+    border:1px solid rgba(77,228,255,.18);
+    margin-bottom:16px;
+  }
+
+  button{
+    border:0;
+    border-radius:14px;
+    padding:12px 18px;
+    font-weight:800;
+    cursor:pointer;
+    transition:.22s ease;
+    font-size:14px;
+  }
+
+  button:hover{transform:translateY(-2px)}
+  button:active{transform:translateY(0)}
+
+  .primary{
+    color:#08111f;
+    background:linear-gradient(135deg,var(--gold),#ffb84d);
+    box-shadow:0 8px 24px rgba(255,209,102,.18);
+  }
+
+  .secondary{
+    color:white;
+    background:linear-gradient(180deg,#2b3851,#202b40);
+    border:1px solid rgba(255,255,255,.08);
+  }
+
+  .navlocks{
+    display:grid;
+    grid-template-columns:repeat(6,1fr);
+    gap:10px;
+    margin-bottom:24px;
+  }
+
+  .locktab{
+    position:relative;
+    padding:13px 8px;
+    border-radius:15px;
+    background:rgba(255,255,255,.035);
+    border:1px solid rgba(255,255,255,.08);
+    color:#8391a7;
+    text-align:center;
+    font-size:13px;
+    overflow:hidden;
+  }
+
+  .locktab::before{
+    content:"";
+    position:absolute;
+    left:0;bottom:0;
+    height:3px;width:100%;
+    background:transparent;
+  }
+
+  .locktab.active{
+    color:#fff;
+    background:linear-gradient(180deg,rgba(139,124,255,.22),rgba(77,228,255,.08));
+    border-color:rgba(139,124,255,.38);
+  }
+
+  .locktab.active::before{
+    background:linear-gradient(90deg,var(--violet),var(--cyan));
+  }
+
+  .locktab.done{
+    color:#e9fff4;
+    background:rgba(67,224,141,.11);
+    border-color:rgba(67,224,141,.25);
+  }
+
+  .locktab.done::before{background:var(--green)}
+
+  .question-title{
+    font-size:clamp(24px,4vw,34px);
+    margin-bottom:6px;
+    letter-spacing:-.025em;
+  }
+
+  .question-sub{
+    color:var(--muted);
+    line-height:1.6;
+    margin-bottom:22px;
+    max-width:800px;
+  }
+
+  .bank{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-bottom:18px;
+  }
+
+  .chip{
+    background:linear-gradient(180deg,#27344d,#1b263b);
+    color:#eef4ff;
+    border:1px solid rgba(255,255,255,.08);
+    padding:10px 13px;
+    border-radius:999px;
+    cursor:pointer;
+    box-shadow:0 7px 18px rgba(0,0,0,.16);
+    transition:.2s ease;
+  }
+
+  .chip:hover{
+    transform:translateY(-2px);
+    border-color:rgba(77,228,255,.28);
+  }
+
+  .chip.selected{
+    background:linear-gradient(135deg,var(--gold),#f4a640);
+    color:#111827;
+    border-color:transparent;
+  }
+
+  .cards,.sequence{
+    display:grid;
+    gap:12px;
+  }
+
+  .card,.seq-item{
+    background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.025));
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:17px;
+    padding:15px;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.03);
+  }
+
+  .card{
+    cursor:pointer;
+    transition:.2s ease;
+  }
+
+  .card:hover{
+    transform:translateY(-2px);
+    border-color:rgba(77,228,255,.22);
+  }
+
+  .card.selected{
+    outline:2px solid var(--gold);
+    box-shadow:0 0 0 5px rgba(255,209,102,.07);
+  }
+
+  .seq-item{
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+
+  .seq-num{
+    width:36px;height:36px;
+    border-radius:12px;
+    display:grid;
+    place-items:center;
+    font-weight:900;
+    background:linear-gradient(135deg,var(--violet),#5b8dff);
+    box-shadow:0 8px 20px rgba(91,141,255,.18);
+  }
+
+  .seq-item button{
+    margin-left:auto;
+    padding:7px 10px;
+    color:white;
+    background:#27344d;
+    border:1px solid rgba(255,255,255,.06);
+  }
+  .seq-item button + button{margin-left:0}
+
+  .columns{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:14px;
+  }
+
+  .bucket{
+    min-height:210px;
+    padding:14px;
+    border-radius:20px;
+    background:rgba(255,255,255,.025);
+    border:1px dashed rgba(255,255,255,.16);
+    transition:.2s ease;
+  }
+
+  .bucket:hover{
+    border-color:rgba(77,228,255,.30);
+    background:rgba(77,228,255,.03);
+  }
+
+  .bucket h3{
+    margin:0 0 12px;
+    text-align:center;
+    font-size:16px;
+  }
+
+  .argument-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+  }
+
+  .clue{
+    position:relative;
+    overflow:hidden;
+    margin:10px 0;
+    padding:14px 16px;
+    border-radius:14px;
+    background:linear-gradient(180deg,rgba(77,228,255,.07),rgba(255,255,255,.025));
+    border:1px solid rgba(77,228,255,.14);
+    color:#eafaff;
+  }
+
+  .clue::before{
+    content:"";
+    position:absolute;
+    left:0;top:0;bottom:0;
+    width:4px;
+    background:linear-gradient(var(--cyan),var(--violet));
+  }
+
+  .input-row{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:12px;
+  }
+
+  input,select{
+    width:100%;
+    background:#0a1427;
+    color:white;
+    border:1px solid #31415f;
+    border-radius:12px;
+    padding:12px 13px;
+    font-size:15px;
+    outline:none;
+    transition:.2s ease;
+  }
+
+  input:focus,select:focus{
+    border-color:var(--cyan);
+    box-shadow:0 0 0 4px rgba(77,228,255,.08);
+  }
+
+  .feedback{
+    margin-top:18px;
+    padding:14px 16px;
+    border-radius:14px;
+    display:none;
+    line-height:1.5;
+    border:1px solid transparent;
+    animation:pop .24s ease;
+  }
+
+  @keyframes pop{
+    from{transform:scale(.98);opacity:0}
+    to{transform:scale(1);opacity:1}
+  }
+
+  .feedback.show{display:block}
+  .feedback.ok{
+    background:rgba(67,224,141,.10);
+    border-color:rgba(67,224,141,.26);
+    color:#eafff3;
+  }
+  .feedback.bad{
+    background:rgba(255,107,122,.10);
+    border-color:rgba(255,107,122,.24);
+    color:#ffe8ec;
+  }
+
+  .controls{
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:22px;
+  }
+
+  .hintbox{
+    display:none;
+    margin-top:14px;
+    padding:14px 16px;
+    border-radius:14px;
+    background:rgba(255,209,102,.09);
+    border:1px solid rgba(255,209,102,.18);
+    color:#fff8df;
+  }
+
+  .hintbox.show{display:block}
+
+  .small{
+    color:#8fa0ba;
+    font-size:13px;
+    line-height:1.5;
+  }
+
+  .final{
+    text-align:center;
+    padding:56px 20px;
+  }
+
+  .trophy-wrap{
+    width:130px;height:130px;
+    margin:0 auto 18px;
+    border-radius:34px;
+    display:grid;
+    place-items:center;
+    font-size:68px;
+    background:linear-gradient(145deg,rgba(255,209,102,.16),rgba(139,124,255,.12));
+    border:1px solid rgba(255,255,255,.10);
+    box-shadow:0 20px 60px rgba(255,209,102,.10);
+    animation:celebrate 1.6s ease-in-out infinite alternate;
+  }
+
+  @keyframes celebrate{
+    from{transform:translateY(0) rotate(-2deg)}
+    to{transform:translateY(-8px) rotate(2deg)}
+  }
+
+  .final h2{
+    font-size:clamp(32px,5vw,50px);
+    margin:8px 0 10px;
+  }
+
+  .final p{color:var(--muted)}
+
+  .final-score{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:12px;
+    margin:14px auto 24px;
+    padding:14px 20px;
+    border-radius:18px;
+    background:rgba(255,255,255,.05);
+    border:1px solid var(--line);
+  }
+
+  .final-score strong{
+    font-size:30px;
+    color:var(--gold);
+  }
+
+  @media (max-width:760px){
+    .columns,.argument-grid{grid-template-columns:1fr}
+    .navlocks{grid-template-columns:repeat(3,1fr)}
+    .panel{padding:20px}
+    .intro{padding:40px 10px}
+    .stats{width:100%}
+    .stat{flex:1}
+  }
+
+  .health-wrap{
+    min-width:180px;
+    padding:10px 14px;
+    border-radius:16px;
+    background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.035));
+    border:1px solid var(--line);
+    backdrop-filter:blur(14px);
+  }
+  .health-title{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-size:12px;
+    color:var(--muted);
+    text-transform:uppercase;
+    letter-spacing:.11em;
+    margin-bottom:7px;
+  }
+  .hearts{
+    display:flex;
+    gap:6px;
+    font-size:23px;
+    line-height:1;
+  }
+  .hp-bar{
+    width:100%;
+    height:8px;
+    margin-top:10px;
+    border-radius:99px;
+    background:rgba(255,255,255,.12);
+    overflow:hidden;
+  }
+  .hp-fill{
+    height:100%;
+    width:100%;
+    background:linear-gradient(90deg,#43e08d,#ffd166);
+    transition:.35s ease;
+  }
+  .heart-break{
+    position:fixed;
+    left:50%;
+    top:45%;
+    transform:translate(-50%,-50%);
+    font-size:90px;
+    z-index:999;
+    animation:breakHeart .8s ease forwards;
+    pointer-events:none;
+  }
+  .success-pop{
+    position:fixed;
+    left:50%;
+    top:45%;
+    transform:translate(-50%,-50%);
+    font-size:70px;
+    z-index:999;
+    animation:successPop .9s ease forwards;
+    pointer-events:none;
+  }
+  @keyframes breakHeart{
+    0%{opacity:0;transform:translate(-50%,-50%) scale(.4)}
+    40%{opacity:1;transform:translate(-50%,-50%) scale(1.2)}
+    100%{opacity:0;transform:translate(-50%,-50%) scale(1)}
+  }
+  @keyframes successPop{
+    0%{opacity:0;transform:translate(-50%,-50%) scale(.5)}
+    40%{opacity:1;transform:translate(-50%,-50%) scale(1.2)}
+    100%{opacity:0;transform:translate(-50%,-50%) scale(1)}
+  }
+  .heart{
+    display:inline-block;
+    transition:.25s ease;
+    filter:drop-shadow(0 0 7px rgba(255,107,122,.25));
+  }
+  .heart.lost{
+    opacity:.22;
+    filter:grayscale(1);
+    transform:scale(.85);
+  }
+  .heart.damage{
+    animation:heartHit .5s ease;
+  }
+  @keyframes heartHit{
+    0%{transform:scale(1)}
+    35%{transform:scale(1.35) rotate(-10deg)}
+    70%{transform:scale(.8) rotate(8deg)}
+    100%{transform:scale(1)}
+  }
+  .screen-hit{
+    animation:screenHit .42s ease;
+  }
+  @keyframes screenHit{
+    0%,100%{transform:translateX(0);box-shadow:var(--shadow)}
+    20%{transform:translateX(-7px);box-shadow:0 0 0 9999px rgba(255,70,90,.07),var(--shadow)}
+    40%{transform:translateX(6px)}
+    60%{transform:translateX(-4px)}
+    80%{transform:translateX(2px)}
+  }
+  .attempts{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    margin-top:8px;
+    color:var(--muted);
+    font-size:13px;
+  }
+  .attempt-dot{
+    width:10px;height:10px;border-radius:50%;
+    background:#41506b;
+    border:1px solid rgba(255,255,255,.08);
+  }
+  .attempt-dot.used{
+    background:var(--red);
+    box-shadow:0 0 10px rgba(255,107,122,.35);
+  }
+  .soft-hint{
+    margin-top:12px;
+    padding:13px 15px;
+    border-radius:14px;
+    background:rgba(77,228,255,.07);
+    border:1px solid rgba(77,228,255,.15);
+    color:#ddfaff;
+  }
+  .gameover{
+    text-align:center;
+    padding:54px 20px;
+  }
+  .gameover-icon{
+    width:125px;height:125px;
+    margin:0 auto 18px;
+    border-radius:34px;
+    display:grid;place-items:center;
+    font-size:64px;
+    background:linear-gradient(145deg,rgba(255,107,122,.15),rgba(139,124,255,.08));
+    border:1px solid rgba(255,255,255,.1);
+  }
+
+
+  .writing-phase{
+    margin:18px 0 24px;
+    padding:18px;
+    border-radius:20px;
+    background:rgba(255,255,255,.025);
+    border:1px solid rgba(255,255,255,.08);
+  }
+  .phase-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:14px;
+  }
+  .phase-title{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-size:19px;
+    font-weight:900;
+    letter-spacing:.01em;
+  }
+  .phase-label{
+    padding:6px 10px;
+    border-radius:999px;
+    font-size:11px;
+    font-weight:900;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:#07111f;
+    background:linear-gradient(135deg,var(--cyan),#9ff3ff);
+  }
+  .phase-label.after{
+    background:linear-gradient(135deg,var(--gold),#ffb84d);
+  }
+  .info-grid{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:10px;
+    margin-top:16px;
+  }
+  details.info-box{
+    background:rgba(255,255,255,.035);
+    border:1px solid rgba(255,255,255,.07);
+    border-radius:14px;
+    padding:12px 14px;
+  }
+  details.info-box summary{
+    cursor:pointer;
+    font-weight:800;
+    color:#eff7ff;
+  }
+  details.info-box ul{
+    margin:10px 0 0;
+    padding-left:19px;
+    color:var(--muted);
+    line-height:1.55;
+    font-size:13px;
+  }
+  .after-grid{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:12px;
+  }
+  .after-card{
+    cursor:pointer;
+    padding:15px;
+    border-radius:17px;
+    background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.025));
+    border:1px solid rgba(255,255,255,.08);
+    transition:.2s ease;
+  }
+  .after-card:hover{
+    transform:translateY(-2px);
+    border-color:rgba(255,209,102,.3);
+  }
+  .after-card.selected{
+    border-color:var(--gold);
+    box-shadow:0 0 0 4px rgba(255,209,102,.07);
+    background:rgba(255,209,102,.07);
+  }
+  .after-card strong{
+    display:block;
+    margin-bottom:5px;
+  }
+  .after-card span{
+    color:var(--muted);
+    font-size:13px;
+    line-height:1.45;
+  }
+  @media(max-width:760px){
+    .info-grid,.after-grid{grid-template-columns:1fr}
+  }
+
+
+  .sort-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:18px;
+  }
+  .sort-text{
+    flex:1;
+    font-weight:700;
+    line-height:1.45;
+  }
+  .sort-actions{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .assign-btn.selected{
+    background:linear-gradient(135deg,var(--gold),#ffb84d);
+    color:#111827;
+    border-color:transparent;
+  }
+
+
+.review-section{
+  margin-top:28px;
+  padding:24px;
+  border-radius:22px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.1);
+  text-align:left;
+}
+.review-section h3{
+  margin-top:0;
+  color:var(--gold);
+}
+.review-card{
+  margin-top:12px;
+  padding:16px;
+  border-radius:16px;
+  background:rgba(255,255,255,.05);
+  border-left:4px solid var(--cyan);
+}
+.review-card strong{
+  display:block;
+  margin-bottom:8px;
+}
+.review-card p{
+  color:var(--muted);
+  line-height:1.6;
+}
+.result-badge{
+  display:inline-block;
+  padding:8px 14px;
+  border-radius:999px;
+  background:rgba(77,228,255,.1);
+  border:1px solid rgba(77,228,255,.2);
+}
+
+
+.victory-character{
+  font-size:90px;
+  text-align:center;
+  animation:bounce 0.8s infinite alternate;
+}
+.confetti{
+  position:absolute;
+  top:20px;
+  left:50%;
+  font-size:32px;
+  animation:floatConfetti 2s infinite;
+}
+@keyframes bounce{
+  from{transform:translateY(0) rotate(-5deg)}
+  to{transform:translateY(-22px) rotate(5deg)}
+}
+@keyframes floatConfetti{
+  from{opacity:0;transform:translateY(0)}
+  to{opacity:1;transform:translateY(80px)}
+}
+
+.learning-hub{
+  margin-top:25px;
+  padding:25px;
+  border-radius:20px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.12);
+}
+
+.lesson-card{
+  margin-top:12px;
+  padding:16px;
+  border-radius:14px;
+  background:rgba(255,255,255,.06);
+  cursor:pointer;
+  transition:.25s;
+}
+
+.lesson-card:hover{
+  transform:translateY(-3px);
+}
+
+.lesson-content{
+  display:none;
+  margin-top:12px;
+  line-height:1.6;
+  color:#cbd5e1;
+}
+</style>
 </head>
 <body>
+<div class="grid-overlay"></div>
 
-<div id="game-wrapper">
-    <!-- Màn hình chơi game -->
-    <div id="game-screen">
-        <header>
-            <h1>🗝️ IELTS Escape Room</h1>
-            <div class="subtitle">Writing & Reading Strategy Challenge</div>
-        </header>
-
-        <div class="stats-bar">
-            <div class="stat-item">
-                <span class="stat-label">HP</span>
-                <span id="hp-display" class="hp-hearts">❤️❤️❤️❤️</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label">Score</span>
-                <span id="score-display">0</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label">Locks</span>
-                <span id="lock-display" class="lock-progress">0/6</span>
-            </div>
-        </div>
-
-        <div class="question-area">
-            <div class="lock-title" id="lock-title">Lock 1</div>
-            <div class="question-text" id="question-text">Loading...</div>
-        </div>
-
-        <div class="options-area" id="options-area">
-            <!-- Options will be injected here -->
-        </div>
-        
-        <div class="feedback-msg" id="feedback-msg"></div>
+<div class="app">
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark">🗝️</div>
+      <div>
+        <h1>IELTS Escape Room</h1>
+        <p>Writing & Reading Strategy Challenge</p>
+      </div>
     </div>
 
-    <!-- Màn hình Game Over -->
-    <div class="game-over-screen" id="game-over-screen">
-        <h2>💀 GAME OVER</h2>
-        <p>Bạn đã hết máu. Căn phòng đã nuốt chửng bạn!</p>
-        <p>Score: <span id="final-score-lose">0</span></p>
-        <button class="restart-btn" onclick="resetGame()">🔄 Chơi lại</button>
+    <div class="stats">
+      <div class="health-wrap">
+        <div class="health-title"><span>HP</span><span id="hpText">100%</span></div>
+        <div class="hearts" id="hearts">
+          <span class="heart">❤️</span>
+          <span class="heart">❤️</span>
+          <span class="heart">❤️</span>
+          <span class="heart">❤️</span>
+        </div>
+        <div class="hp-bar"><div class="hp-fill" id="hpFill"></div></div>
+      </div>
+      <div class="stat"><span>Score</span><strong id="score">0</strong></div>
+      <div class="stat"><span>Hint</span><strong id="hintCount">1</strong></div>
+      <div class="stat"><span>Locks</span><strong id="locksDone">0/6</strong></div>
     </div>
+  </div>
 
-    <!-- Màn hình Chiến thắng -->
-    <div class="win-screen" id="win-screen">
-        <h2>🎉 ESCAPED!</h2>
-        <p>Bạn đã giải mã thành công và thoát khỏi căn phòng!</p>
-        <p>Final Score: <span id="final-score-win">0</span></p>
-        <button class="restart-btn" onclick="resetGame()">🔄 Chơi lại</button>
-    </div>
+  <div class="panel" id="game"></div>
 </div>
 
 <script>
-    // --- DỮ LIỆU 6 Ổ KHÓA (IELTS STRATEGIES) ---
-    const locks = [
-        {
-            title: "Lock 1: Reading Strategy",
-            question: "What is the main purpose of 'Skimming' in IELTS Reading?",
-            options: [
-                "A) To find specific details like dates or names",
-                "B) To get the general idea and main topic of the text",
-                "C) To check grammar and vocabulary"
-            ],
-            correctIndex: 1
-        },
-        {
-            title: "Lock 2: True/False/Not Given",
-            question: "In a 'True/False/Not Given' question, what does 'Not Given' mean?",
-            options: [
-                "A) The statement is completely false",
-                "B) The text contradicts the statement",
-                "C) The information is not mentioned or cannot be found in the text"
-            ],
-            correctIndex: 2
-        },
-        {
-            title: "Lock 3: Writing Task 1",
-            question: "In IELTS Writing Task 1, which paragraph is CRITICAL for a Band 7+ score?",
-            options: [
-                "A) The Introduction",
-                "B) The Overview (summarizing main trends/stages)",
-                "C) The Conclusion"
-            ],
-            correctIndex: 1
-        },
-        {
-            title: "Lock 4: Writing Task 2",
-            question: "How many body paragraphs are typically recommended for a Task 2 essay?",
-            options: [
-                "A) 1 long paragraph",
-                "B) 2 or 3 paragraphs",
-                "C) 5 paragraphs"
-            ],
-            correctIndex: 1
-        },
-        {
-            title: "Lock 5: Writing Criteria",
-            question: "What does the 'Coherence and Cohesion' criterion assess?",
-            options: [
-                "A) Your range of vocabulary",
-                "B) Grammatical accuracy",
-                "C) Logical organization and use of linking words"
-            ],
-            correctIndex: 2
-        },
-        {
-            title: "Lock 6: Time Management",
-            question: "What is the recommended time split for the IELTS Writing test?",
-            options: [
-                "A) 20 mins for Task 1, 40 mins for Task 2",
-                "B) 30 mins for Task 1, 30 mins for Task 2",
-                "C) 10 mins for Task 1, 50 mins for Task 2"
-            ],
-            correctIndex: 0
-        }
-    ];
+const game = document.getElementById('game');
+const scoreEl = document.getElementById('score');
+const hintCountEl = document.getElementById('hintCount');
+const locksDoneEl = document.getElementById('locksDone');
+const hpTextEl = document.getElementById('hpText');
+const heartsEl = document.getElementById('hearts');
 
-    // --- TRẠNG THÁI GAME ---
-    let currentLockIndex = 0;
-    let maxHP = 4;
-    let currentHP = 4;
-    let score = 0;
-    let isProcessing = false; // Lock input khi đang chuyển câu
+let score = 0;
+let current = -1;
+let hintLeft = 1;
+let hp = 4;
+let mistakes = [];
+let completed = [false,false,false,false,false,false];
+let attempts = [0,0,0,0,0,0];
+let damageTakenOnLock = [false,false,false,false,false,false];
 
-    // --- HÀM XỬ LÝ GIAO DIỆN ---
-    function updateUI() {
-        // 1. Cập nhật HP (Tim)
-        let heartsHTML = '';
-        for (let i = 0; i < maxHP; i++) {
-            heartsHTML += i < currentHP ? '❤️' : '🖤';
-        }
-        document.getElementById('hp-display').innerHTML = heartsHTML;
+function shuffledCopy(arr){
+  const copy = [...arr];
+  for(let i = copy.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
 
-        // 2. Cập nhật Score
-        document.getElementById('score-display').innerText = score;
 
-        // 3. Cập nhật Locks
-        document.getElementById('lock-display').innerText = `${currentLockIndex}/${locks.length}`;
-    }
+const locks = [
+  {
+    title: "Lock 1 — Sequence Puzzle",
+    subtitle: "Complete TWO phases: arrange the BEFORE WRITING stages, then select all FOUR areas to check AFTER WRITING.",
+    hint: "Think about what you normally do before you start writing, and what you normally check after you finish.",
+    render: renderSequence,
+    check: checkSequence
+  },
+  {
+    title: "Lock 2 — Spot the Difference",
+    subtitle: "Sort the key features into Opinion Essay, Both, or Discuss + Opinion Essay.",
+    hint: "Focus on what the question asks you to do with viewpoints and your own position.",
+    render: renderSort,
+    check: checkSort
+  },
+  {
+    title: "Lock 3 — Build a Convincing Argument",
+    subtitle: "Select the essential elements of a convincing argument. Watch out for weak-writing traps.",
+    hint: "Think about how a strong paragraph develops one point logically instead of listing random ideas.",
+    render: renderArgument,
+    check: checkArgument
+  },
+  {
+    title: "Lock 4 — Guess the Two Reading Skills",
+    subtitle: "Read the clues and type the two key skills.",
+    hint: "Think of two speed-reading techniques used for different purposes.",
+    render: renderReadingSkills,
+    check: checkReadingSkills
+  },
+  {
+    title: "Lock 5 — Password Challenge",
+    subtitle: "Recover the two exact phrases to remember when doing Matching Headings.",
+    hint: "Recall the two short classroom phrases connected with Matching Headings.",
+    render: renderPassword,
+    check: checkPassword
+  },
+  {
+    title: "Lock 6 — Which Strategy Am I?",
+    subtitle: "Classify each statement as Matching Heading, Matching Information, or Trap.",
+    hint: "Ask yourself whether the task is about the paragraph as a whole or locating a particular piece of information.",
+    render: renderStrategy,
+    check: checkStrategy
+  }
+];
 
-    function loadLock() {
-        if (currentLockIndex >= locks.length) {
-            winGame();
-            return;
-        }
+function updateStats(){
+  hp = Math.max(0, Math.min(4, hp));
+  scoreEl.textContent = score;
+  hintCountEl.textContent = hintLeft;
+  locksDoneEl.textContent = completed.filter(Boolean).length + "/6";
+  hpTextEl.textContent = hp + "/4";
+  [...heartsEl.children].forEach((h,i)=>{
+    h.classList.toggle("lost", i >= hp);
+  });
+}
 
-        const lock = locks[currentLockIndex];
-        document.getElementById('lock-title').innerText = lock.title;
-        document.getElementById('question-text').innerText = lock.question;
-        
-        const optionsArea = document.getElementById('options-area');
-        optionsArea.innerHTML = '';
-        
-        lock.options.forEach((opt, index) => {
-            const btn = document.createElement('button');
-            btn.className = 'option-btn';
-            btn.innerText = opt;
-            btn.onclick = () => handleAnswer(index, btn);
-            optionsArea.appendChild(btn);
-        });
+function nav(){
+  return `<div class="navlocks">
+    ${locks.map((_,i)=>`<div class="locktab ${completed[i]?'done':''} ${i===current?'active':''}">
+      ${completed[i]?'✓ ':'🔒 '}Lock ${i+1}
+    </div>`).join('')}
+  </div>`;
+}
 
-        document.getElementById('feedback-msg').style.display = 'none';
-        isProcessing = false;
-    }
+function startScreen(){
+  current = -1;
+  game.innerHTML = `
+    <div class="intro">
+      <div class="badge">MISSION 01 • IELTS STRATEGY VAULT</div>
+      <div class="hero-art">
+        <div class="orbit"></div>
+        <div class="door"><div class="keyhole"></div></div>
+      </div>
+      <h2>Your IELTS notes are locked.</h2>
+      <p>
+        Six strategy locks stand between you and the IELTS Master Key.
+        Solve each challenge, avoid the traps, and escape with the highest score possible.
+      </p>
+      <button class="primary" onclick="goLock(0)">Enter the Vault</button>
+    </div>`;
+}
 
-    // --- HÀM XỬ LÝ TRẢ LỜI (ĐÃ SỬA LỖI) ---
-    function handleAnswer(selectedIndex, btnElement) {
-        if (isProcessing) return;
-        isProcessing = true;
+function goLock(i){
+  current = i;
+  game.innerHTML = nav() + `
+    <div class="question-title">${locks[i].title}</div>
+    <div class="question-sub">${locks[i].subtitle}</div>
+    <div class="attempts">
+      <span>Attempts:</span>
+      <span class="attempt-dot ${attempts[i] >= 1 ? 'used' : ''}"></span>
+      <span class="attempt-dot ${attempts[i] >= 2 ? 'used' : ''}"></span>
+      <span class="attempt-dot ${attempts[i] >= 3 ? 'used' : ''}"></span>
+    </div>
+    <div id="content" style="margin-top:14px"></div>
+    <div id="hintbox" class="hintbox">💡 ${locks[i].hint}</div>
+    <div id="feedback" class="feedback"></div>
+    <div class="controls">
+      <button class="secondary" onclick="useHint()">Use Hint</button>
+      <button class="primary" onclick="submitCurrent()">Unlock</button>
+    </div>`;
+  locks[i].render();
+}
 
-        const lock = locks[currentLockIndex];
-        const feedback = document.getElementById('feedback-msg');
+function useHint(){
+  if(hintLeft <= 0){
+    showFeedback(false,"No hints left. You have to crack this one yourself.");
+    return;
+  }
+  hintLeft--;
+  updateStats();
+  document.getElementById("hintbox").classList.add("show");
+}
 
-        if (selectedIndex === lock.correctIndex) {
-            // TRẢ LỜI ĐÚNG
-            btnElement.classList.add('correct');
-            score += 10;
-            feedback.innerText = "✅ Correct! Lock opened.";
-            feedback.style.color = "var(--success)";
-            feedback.style.display = "block";
-            
-            updateUI();
+function showHeartBreak(){
+  const e=document.createElement("div");
+  e.className="heart-break";
+  e.textContent="💔";
+  document.body.appendChild(e);
+  setTimeout(()=>e.remove(),900);
+}
+function showSuccess(){
+  const e=document.createElement("div");
+  e.className="success-pop";
+  e.textContent="✨🎉";
+  document.body.appendChild(e);
+  setTimeout(()=>e.remove(),900);
+}
 
-            setTimeout(() => {
-                currentLockIndex++;
-                loadLock();
-            }, 1200);
+function showFeedback(ok,msg){
+  if(ok) showSuccess();
+  const box = document.getElementById("feedback");
+  box.className = "feedback show " + (ok?"ok":"bad");
+  box.innerHTML = ok ? `✅ ${msg}` : `⚠️ ${msg}`;
+}
 
-        } else {
-            // TRẢ LỜI SAI
-            btnElement.classList.add('wrong');
-            
-            // 1. TRỪ MÁU (Fix bug không mất máu)
-            currentHP--;
-            updateUI();
+function submitCurrent(){
+  if(completed[current]){
+    nextLock();
+    return;
+  }
 
-            // 2. HIỆU ỨNG RUNG & NHÁY ĐỎ (Fix bug chỉ chạy 1 lần)
-            triggerWrongEffect();
+  const ok = locks[current].check();
 
-            feedback.innerText = "❌ Wrong! You lost 1 HP.";
-            feedback.style.color = "var(--danger)";
-            feedback.style.display = "block";
+  if(ok){
+    score += attempts[current] === 0 ? 10 : attempts[current] === 1 ? 8 : 6;
+    completed[current] = true;
+    updateStats();
+    const gained = attempts[current] === 0 ? 10 : attempts[current] === 1 ? 8 : 6;
+    showFeedback(true, `Lock opened. +${gained} points.`);
+    const btns = document.querySelectorAll(".controls button");
+    btns[1].textContent = current === 5 ? "Claim Master Key" : "Next Lock";
+    btns[1].onclick = nextLock;
+    return;
+  }
 
-            // 3. KIỂM TRA GAME OVER
-            if (currentHP <= 0) {
-                setTimeout(() => gameOver(), 1000);
-            } else {
-                // Cho phép chọn lại đáp án khác sau 1 giây
-                setTimeout(() => {
-                    btnElement.classList.remove('wrong');
-                    isProcessing = false; 
-                }, 1000);
-            }
-        }
-    }
+  attempts[current]++;
 
-    // --- KỸ THUẬT FIX LỖI HIỆU ỨNG CSS CHỈ CHẠY 1 LẦN ---
-    function triggerWrongEffect() {
-        const wrapper = document.getElementById('game-wrapper');
-        
-        // Bước 1: Xóa class cũ đi (nếu có)
-        wrapper.classList.remove('shake-effect', 'flash-red-effect');
-        
-        // Bước 2: Force Reflow (Kỹ thuật bắt buộc để trình duyệt nhận diện việc thêm class mới là một animation mới)
-        void wrapper.offsetWidth; 
-        
-        // Bước 3: Thêm class hiệu ứng vào
-        wrapper.classList.add('shake-effect', 'flash-red-effect');
-    }
+  {
+    hp = Math.max(0, hp - 1);
+    showHeartBreak();
+    const panel = document.querySelector(".panel");
+    panel.classList.remove("screen-hit");
+    void panel.offsetWidth;
+    panel.classList.add("screen-hit");
 
-    // Lắng nghe sự kiện animation kết thúc để tự động xóa class, 
-    // đảm bảo lần sau gọi triggerWrongEffect() nó vẫn chạy lại từ đầu
-    document.getElementById('game-wrapper').addEventListener('animationend', function() {
-        this.classList.remove('shake-effect', 'flash-red-effect');
+    [...heartsEl.children].forEach((target,i)=>{
+      target.classList.remove("damage");
+      if(i === hp){
+        void target.offsetWidth;
+        target.classList.add("damage");
+      }
     });
+  }
 
-    // --- KẾT THÚC GAME ---
-    function gameOver() {
-        document.getElementById('game-screen').style.display = 'none';
-        document.getElementById('game-over-screen').style.display = 'block';
-        document.getElementById('final-score-lose').innerText = score;
-    }
+  updateStats();
 
-    function winGame() {
-        document.getElementById('game-screen').style.display = 'none';
-        document.getElementById('win-screen').style.display = 'block';
-        document.getElementById('final-score-win').innerText = score;
-    }
+  if(hp <= 0){
+    gameOver();
+    return;
+  }
 
-    function resetGame() {
-        currentLockIndex = 0;
-        currentHP = maxHP;
-        score = 0;
-        
-        document.getElementById('game-screen').style.display = 'block';
-        document.getElementById('game-over-screen').style.display = 'none';
-        document.getElementById('win-screen').style.display = 'none';
-        
-        updateUI();
-        loadLock();
-    }
+  if(attempts[current] >= 3){
+    showFeedback(false, "No more guessing needed — here is a stronger clue so you can keep moving.");
+    const box = document.getElementById("hintbox");
+    box.classList.add("show");
+    box.innerHTML = "🧠 Strong hint: eliminate the obviously wrong choices first, then compare the remaining options with the question requirement. You will not lose more HP on this Lock.";
+  } else {
+    showFeedback(false, `Not quite. You still have ${3-attempts[current]} attempt${3-attempts[current]===1?'':'s'} on this Lock.`);
+  }
 
-    // --- KHỞI CHẠY GAME ---
-    window.onload = () => {
-        updateUI();
-        loadLock();
-    };
+  const fb = document.getElementById("feedback");
+  if(attempts[current] >= 3){
+    fb.className = "feedback show bad";
+    fb.innerHTML = "⚠️ Strong hint unlocked. You can keep trying without losing another heart on this Lock.";
+    const hb = document.getElementById("hintbox");
+    hb.classList.add("show");
+    hb.innerHTML = "🧠 Try again carefully. Focus on the requirement of the question instead of guessing randomly.";
+  } else {
+    fb.className = "feedback show bad";
+    fb.innerHTML = `⚠️ Not quite. ${3-attempts[current]} attempt${3-attempts[current]===1?'':'s'} left on this Lock.`;
+  }
+}
+
+function nextLock(){
+  if(current < 5) goLock(current+1);
+  else finishGame();
+}
+
+/* LOCK 1 */
+const beforeItems = [
+  "Recognition",
+  "Question Analysis",
+  "Brainstorming",
+  "Plan the structure",
+  "Organize ideas",
+  "Translate every sentence first",
+  "Start writing without a plan"
+];
+
+const afterCriteria = [
+  ["TR","Task Response","How accurately the task is addressed"],
+  ["CC","Coherence & Cohesion","How clearly and logically the writing is organized"],
+  ["GRA","Grammatical Range & Accuracy","How accurately and flexibly grammar is used"],
+  ["LR","Lexical Resource","How appropriately and accurately vocabulary is used"]
+];
+
+function renderSequence(){
+  const c = document.getElementById("content");
+  c.innerHTML = `
+    <div class="writing-phase">
+      <div class="phase-head">
+        <div class="phase-title">🧠 BEFORE WRITING</div>
+        <div class="phase-label">Phase 1</div>
+      </div>
+
+      <p class="small">
+        Choose the correct stages and arrange them in the right order.
+        Some cards are traps.
+      </p>
+
+      <div class="bank">
+        ${shuffledCopy(beforeItems).map(x=>`<div class="chip" onclick="addSeq('${escapeQuote(x)}', this)">${x}</div>`).join('')}
+      </div>
+
+      <div class="sequence" id="seq"></div>
+    </div>
+
+    <div class="writing-phase">
+      <div class="phase-head">
+        <div class="phase-title">🛡️ AFTER WRITING</div>
+        <div class="phase-label after">Phase 2</div>
+      </div>
+
+      <p class="small">
+        Select the areas you should check after finishing the response.
+        Not every option is necessarily correct.
+      </p>
+
+      <div class="after-grid">
+        ${shuffledCopy([
+          ...afterCriteria.map((x,i)=>({code:x[0], name:x[1], correct:true, id:i})),
+          {code:"TS", name:"Translation Speed", correct:false},
+          {code:"MI", name:"Memorised Ideas", correct:false}
+        ]).map(x=>`
+          <div class="after-card" ${x.correct ? `data-after="${x.id}"` : `data-fake="1"`} onclick="this.classList.toggle('selected')">
+            <strong>${x.code}</strong>
+            <span>${x.name}</span>
+          </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+function escapeQuote(s){ return s.replaceAll("'","\\'"); }
+
+function addSeq(text, el){
+  if(el.classList.contains("selected")) return;
+  el.classList.add("selected");
+  const seq = document.getElementById("seq");
+  const row = document.createElement("div");
+  row.className = "seq-item";
+  row.dataset.text = text;
+  row.innerHTML = `
+    <div class="seq-num"></div>
+    <span>${text}</span>
+    <button onclick="moveUp(this)">↑</button>
+    <button onclick="moveDown(this)">↓</button>
+    <button onclick="removeSeq(this,'${escapeQuote(text)}')">✕</button>`;
+  seq.appendChild(row);
+  renumber();
+}
+
+function moveUp(btn){
+  const row = btn.parentElement;
+  if(row.previousElementSibling) row.parentNode.insertBefore(row,row.previousElementSibling);
+  renumber();
+}
+
+function moveDown(btn){
+  const row = btn.parentElement;
+  if(row.nextElementSibling) row.parentNode.insertBefore(row.nextElementSibling,row);
+  renumber();
+}
+
+function removeSeq(btn,text){
+  btn.parentElement.remove();
+  [...document.querySelectorAll(".bank .chip")]
+    .find(x=>x.textContent===text)?.classList.remove("selected");
+  renumber();
+}
+
+function renumber(){
+  document.querySelectorAll(".seq-item").forEach((x,i)=>x.querySelector(".seq-num").textContent=i+1);
+}
+
+function checkSequence(){
+  const before = [...document.querySelectorAll(".seq-item")].map(x=>x.dataset.text);
+  const correctBefore = [
+    "Recognition",
+    "Question Analysis",
+    "Brainstorming",
+    "Plan the structure",
+    "Organize ideas"
+  ];
+
+  const correctAfterSelected = [...document.querySelectorAll(".after-card[data-after]")]
+    .filter(x=>x.classList.contains("selected")).length;
+
+  const fakeAfterSelected = [...document.querySelectorAll(".after-card[data-fake]")]
+    .some(x=>x.classList.contains("selected"));
+
+  return JSON.stringify(before) === JSON.stringify(correctBefore)
+    && correctAfterSelected === 4
+    && !fakeAfterSelected;
+}
+
+/* LOCK 2 */
+const sortItems = [
+  ["The essay asks you to choose a position and defend it consistently","opinion"],
+  ["You do not need to discuss both sides equally","opinion"],
+  ["The main goal is to support your agreement or disagreement with reasons","opinion"],
+  ["You must explain View A and View B before giving your judgement","discuss"],
+  ["The essay requires a balanced discussion of two different perspectives","discuss"],
+  ["The question usually contains 'Discuss both views and give your own opinion'","discuss"]
+];
+
+let selectedChip = null;
+
+function renderSort(){
+  const c = document.getElementById("content");
+  c.innerHTML = `
+    <div class="writing-phase">
+      <div class="clue">
+        Identify the key differences between Opinion Essay and Discuss + Opinion Essay.
+        <br><span class="small">For each statement, tap ONE button. You can change your choice anytime before pressing Unlock.</span>
+      </div>
+
+      <div class="cards" id="sortbank">
+        ${shuffledCopy(sortItems.map((x,i)=>[x[0],x[1],i])).map(x=>`
+          <div class="card sort-row" data-id="${x[2]}">
+            <div class="sort-text">${x[0]}</div>
+
+            <div class="sort-actions">
+              <button class="secondary assign-btn"
+                onclick="chooseEssayType(this,'opinion')">
+                🎯 Opinion
+              </button>
+
+              <button class="secondary assign-btn"
+                onclick="chooseEssayType(this,'discuss')">
+                🗣️ Discuss + Opinion
+              </button>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>`;
+}
+
+function chooseEssayType(btn,type){
+  const row = btn.closest('.sort-row');
+  row.dataset.answer = type;
+
+  row.querySelectorAll('.assign-btn').forEach(b=>{
+    b.classList.remove('selected');
+  });
+
+  btn.classList.add('selected');
+}
+
+function checkSort(){
+  for(const [i,item] of sortItems.entries()){
+    const row = document.querySelector(`.sort-row[data-id="${i}"]`);
+    if(!row || row.dataset.answer !== item[1]) return false;
+  }
+  return true;
+}
+
+/* LOCK 3 */
+const argumentOptions = [
+  ["Clear central idea",true],
+  ["Explain why / how",true],
+  ["Specific & relevant example",true],
+  ["Elaborate how the example supports the argument",true],
+  ["Rebuttal when appropriate",true],
+  ["Many vague examples",false],
+  ["Unnecessary statistics",false]
+];
+
+function renderArgument(){
+  const c=document.getElementById("content");
+  c.innerHTML = `<div class="argument-grid">
+    ${shuffledCopy(argumentOptions.map((x,i)=>[x[0],x[1],i])).map(x=>`
+      <div class="card" data-arg="${x[2]}" onclick="this.classList.toggle('selected')">
+        ${x[0]}
+      </div>`).join('')}
+  </div>
+  <p class="small">Select the strong elements. A rebuttal is useful when appropriate.</p>`;
+}
+
+function checkArgument(){
+  return argumentOptions.every((x,i)=>{
+    const chosen = document.querySelector(`[data-arg="${i}"]`).classList.contains("selected");
+    return chosen === x[1];
+  });
+}
+
+/* LOCK 4 */
+function renderReadingSkills(){
+  const c=document.getElementById("content");
+  c.innerHTML = `
+    <div class="clue">Skill 1: I help you read quickly to understand the main idea and overall structure of a passage.</div>
+    <div class="clue">Skill 2: I help you quickly locate specific information, keywords, names, numbers, or synonyms related to the question.</div>
+    <div class="input-row"><input id="skill1" placeholder="Type Skill 1"></div>
+    <div class="input-row"><input id="skill2" placeholder="Type Skill 2"></div>`;
+}
+function norm(s){ return s.toLowerCase().trim().replace(/\s+/g," "); }
+function checkReadingSkills(){
+  const a = norm(document.getElementById("skill1").value).replace(/ing$/,"");
+  const b = norm(document.getElementById("skill2").value).replace(/ing$/,"");
+  return ["skim","skimming"].includes(a) && ["scan","scanning"].includes(b);
+}
+
+/* LOCK 5 */
+function renderPassword(){
+  const c=document.getElementById("content");
+  c.innerHTML = `
+    <div class="clue">Phrase 1: ________ words → List of Headings</div>
+    <div class="clue">Phrase 2: Sentence ________ → Paragraphs</div>
+    <div class="input-row"><input id="p1" placeholder="Phrase 1"></div>
+    <div class="input-row"><input id="p2" placeholder="Phrase 2"></div>
+    <p class="small">Type the exact key words from the lesson.</p>`;
+}
+function checkPassword(){
+  const a=norm(document.getElementById("p1").value);
+  const b=norm(document.getElementById("p2").value);
+  return ["organizing","organising"].includes(a) && b==="function";
+}
+
+/* LOCK 6 */
+const statements = [
+  ["Matching Information: one paragraph can contain MORE THAN ONE piece of information.","info"],
+  ["Matching Headings: identify the overall meaning / main idea of a paragraph.","heading"],
+  ["Matching Information: scan paragraphs for specific information.","info"],
+  ["Matching Headings: each paragraph is matched with ONE heading.","heading"],
+  ["Matching Headings: focus mainly on specific details.","trap"],
+  ["Matching Information: always choose only one answer for each paragraph.","trap"]
+];
+
+function renderStrategy(){
+  const c=document.getElementById("content");
+  c.innerHTML = `
+    <div class="cards">
+      ${shuffledCopy(statements.map((x,i)=>[x[0],x[1],i])).map(x=>`
+        <div class="card">
+          <div style="margin-bottom:10px">${x[0]}</div>
+          <select data-st="${x[2]}">
+            <option value="">Choose...</option>
+            <option value="heading">True — Matching Headings</option>
+            <option value="info">True — Matching Information</option>
+            <option value="trap">False / Trap</option>
+          </select>
+        </div>`).join('')}
+    </div>`;
+}
+
+function checkStrategy(){
+  return statements.every((x,i)=>document.querySelector(`[data-st="${i}"]`).value===x[1]);
+}
+
+
+function gameOver(){
+  game.innerHTML = `
+    <div class="gameover">
+      <div class="gameover-icon">💔</div>
+      <div class="badge">MISSION FAILED • BUT YOU CAN RETRY</div>
+      <h2 style="font-size:clamp(32px,5vw,50px);margin:8px 0 10px">Game Over</h2>
+      <p style="color:var(--muted);max-width:620px;margin:0 auto 24px">
+        You ran out of hearts, but the game is designed to be forgiving. Restart and use what you learned from the previous locks.
+      </p>
+      <button class="primary" onclick="restart()">Try Again</button>
+    </div>`;
+}
+
+function finishGame(){
+  const rank = score >= 55 ? "S" :
+               score >= 45 ? "A" :
+               score >= 35 ? "B" :
+               score >= 25 ? "C" : "D";
+  game.innerHTML = `
+    <div class="final">
+      <div class="trophy-wrap">🏆</div>
+      <div class="badge">VAULT CLEARED • MASTER KEY FOUND</div>
+      <h2>IELTS Master Key Recovered!</h2>
+      <p>You unlocked all six strategy locks and escaped the vault.</p>
+      <div class="final-score">
+        <span>Final Score / 60</span>
+        <strong>${score}</strong>
+      </div>
+      <div class="final-score">
+        <span>Rank</span>
+        <strong>${rank}</strong>
+      </div>
+      <p class="small">Rank S = full HP • A = 75% HP • B = 50% HP • C = 25% HP.</p>
+
+
+<div class="victory-character">
+🧑‍🎓👏🎉
+</div>
+
+<div class="learning-hub">
+<h2>📚 IELTS Learning Hub</h2>
+<p>Select a Lock to review the strategy and improve your IELTS skills.</p>
+
+<div class="lesson-card" onclick="toggleLesson(1)">
+🔓 Lock 1 — Reading Strategy
+<div class="lesson-content" id="lesson1">
+<b>Skimming:</b> Find the general idea and structure of a passage.<br>
+<b>Scanning:</b> Locate specific information such as names, dates, and keywords.
+</div>
+</div>
+
+<div class="lesson-card" onclick="toggleLesson(2)">
+🔓 Lock 2 — Opinion vs Discuss + Opinion Essay
+<div class="lesson-content" id="lesson2">
+<b>Opinion Essay:</b> Choose one position and defend it consistently.<br><br>
+<b>Discuss + Opinion:</b> Explain both viewpoints before giving your judgement.
+</div>
+</div>
+
+<div class="lesson-card" onclick="toggleLesson(3)">
+🔓 Lock 3 — Writing Task 1
+<div class="lesson-content" id="lesson3">
+Focus on identifying overview, key trends and important comparisons.
+</div>
+</div>
+
+<div class="lesson-card" onclick="toggleLesson(4)">
+🔓 Lock 4 — Reading Techniques
+<div class="lesson-content" id="lesson4">
+Use keywords and understand the purpose of each reading strategy.
+</div>
+</div>
+
+<div class="lesson-card" onclick="toggleLesson(5)">
+🔓 Lock 5 — Writing Criteria
+<div class="lesson-content" id="lesson5">
+Coherence, cohesion, vocabulary and grammar all affect IELTS writing scores.
+</div>
+</div>
+
+<div class="lesson-card" onclick="toggleLesson(6)">
+🔓 Lock 6 — Time Management
+<div class="lesson-content" id="lesson6">
+Manage time carefully: Task 2 requires more time because it carries more marks.
+</div>
+</div>
+
+</div>
+
+
+<div class="review-card">
+<strong>📖 Reading Strategy</strong>
+<p>
+Skimming helps identify the general idea and structure. 
+Scanning helps locate specific information, keywords, names, and numbers.
+</p>
+</div>
+
+<div class="review-card">
+<strong>💡 Your Performance</strong>
+<p>
+You completed all six locks. Review the sections above and practise the strategies you found difficult.
+</p>
+</div>
+</div>
+
+      <br>
+      <button class="primary" onclick="restart()">Play Again</button>
+    </div>`;
+}
+
+function restart(){
+  score=0;
+  current=-1;
+  hintLeft=1;
+  hp=4;
+  completed=[false,false,false,false,false,false];
+  attempts=[0,0,0,0,0,0];
+  damageTakenOnLock=[false,false,false,false,false,false];
+  updateStats();
+  startScreen();
+}
+
+updateStats();
+startScreen();
+
+function toggleLesson(id){
+  const box=document.getElementById("lesson"+id);
+  if(box){
+    box.style.display = box.style.display==="block" ? "none" : "block";
+  }
+}
 </script>
-
 </body>
 </html>
