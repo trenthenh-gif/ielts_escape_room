@@ -436,32 +436,6 @@
   }
   .seq-item button + button{margin-left:0}
 
-  .columns{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:14px;
-  }
-
-  .bucket{
-    min-height:210px;
-    padding:14px;
-    border-radius:20px;
-    background:rgba(255,255,255,.025);
-    border:1px dashed rgba(255,255,255,.16);
-    transition:.2s ease;
-  }
-
-  .bucket:hover{
-    border-color:rgba(77,228,255,.30);
-    background:rgba(77,228,255,.03);
-  }
-
-  .bucket h3{
-    margin:0 0 12px;
-    text-align:center;
-    font-size:16px;
-  }
-
   .argument-grid{
     display:grid;
     grid-template-columns:1fr 1fr;
@@ -612,7 +586,7 @@
   }
 
   @media (max-width:760px){
-    .columns,.argument-grid{grid-template-columns:1fr}
+    .argument-grid{grid-template-columns:1fr}
     .navlocks{grid-template-columns:repeat(3,1fr)}
     .panel{padding:20px}
     .intro{padding:40px 10px}
@@ -621,7 +595,7 @@
   }
 
   .health-wrap{
-    min-width:150px;
+    min-width:180px;
     padding:10px 14px;
     border-radius:16px;
     background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.035));
@@ -638,26 +612,70 @@
     letter-spacing:.11em;
     margin-bottom:7px;
   }
-  .HPs{
+  .hearts{
     display:flex;
     gap:6px;
     font-size:23px;
     line-height:1;
   }
-  .HP{
+  .hp-bar{
+    width:100%;
+    height:8px;
+    margin-top:10px;
+    border-radius:99px;
+    background:rgba(255,255,255,.12);
+    overflow:hidden;
+  }
+  .hp-fill{
+    height:100%;
+    width:100%;
+    background:linear-gradient(90deg,#43e08d,#ffd166);
+    transition:.35s ease;
+  }
+  .heart-break{
+    position:fixed;
+    left:50%;
+    top:45%;
+    transform:translate(-50%,-50%);
+    font-size:90px;
+    z-index:999;
+    animation:breakHeart .8s ease forwards;
+    pointer-events:none;
+  }
+  .success-pop{
+    position:fixed;
+    left:50%;
+    top:45%;
+    transform:translate(-50%,-50%);
+    font-size:70px;
+    z-index:999;
+    animation:successPop .9s ease forwards;
+    pointer-events:none;
+  }
+  @keyframes breakHeart{
+    0%{opacity:0;transform:translate(-50%,-50%) scale(.4)}
+    40%{opacity:1;transform:translate(-50%,-50%) scale(1.2)}
+    100%{opacity:0;transform:translate(-50%,-50%) scale(1)}
+  }
+  @keyframes successPop{
+    0%{opacity:0;transform:translate(-50%,-50%) scale(.5)}
+    40%{opacity:1;transform:translate(-50%,-50%) scale(1.2)}
+    100%{opacity:0;transform:translate(-50%,-50%) scale(1)}
+  }
+  .heart{
     display:inline-block;
     transition:.25s ease;
     filter:drop-shadow(0 0 7px rgba(255,107,122,.25));
   }
-  .HP.lost{
+  .heart.lost{
     opacity:.22;
     filter:grayscale(1);
     transform:scale(.85);
   }
-  .HP.damage{
-    animation:HPHit .5s ease;
+  .heart.damage{
+    animation:heartHit .5s ease;
   }
-  @keyframes HPHit{
+  @keyframes heartHit{
     0%{transform:scale(1)}
     35%{transform:scale(1.35) rotate(-10deg)}
     70%{transform:scale(.8) rotate(8deg)}
@@ -690,14 +708,6 @@
     background:var(--red);
     box-shadow:0 0 10px rgba(255,107,122,.35);
   }
-  .soft-hint{
-    margin-top:12px;
-    padding:13px 15px;
-    border-radius:14px;
-    background:rgba(77,228,255,.07);
-    border:1px solid rgba(77,228,255,.15);
-    color:#ddfaff;
-  }
   .gameover{
     text-align:center;
     padding:54px 20px;
@@ -711,7 +721,6 @@
     background:linear-gradient(145deg,rgba(255,107,122,.15),rgba(139,124,255,.08));
     border:1px solid rgba(255,255,255,.1);
   }
-
 
   .writing-phase{
     margin:18px 0 24px;
@@ -748,30 +757,6 @@
   .phase-label.after{
     background:linear-gradient(135deg,var(--gold),#ffb84d);
   }
-  .info-grid{
-    display:grid;
-    grid-template-columns:repeat(2,minmax(0,1fr));
-    gap:10px;
-    margin-top:16px;
-  }
-  details.info-box{
-    background:rgba(255,255,255,.035);
-    border:1px solid rgba(255,255,255,.07);
-    border-radius:14px;
-    padding:12px 14px;
-  }
-  details.info-box summary{
-    cursor:pointer;
-    font-weight:800;
-    color:#eff7ff;
-  }
-  details.info-box ul{
-    margin:10px 0 0;
-    padding-left:19px;
-    color:var(--muted);
-    line-height:1.55;
-    font-size:13px;
-  }
   .after-grid{
     display:grid;
     grid-template-columns:repeat(2,minmax(0,1fr));
@@ -803,31 +788,29 @@
     font-size:13px;
     line-height:1.45;
   }
-  @media(max-width:760px){
-    .info-grid,.after-grid{grid-template-columns:1fr}
-  }
 
-
+  /* CSS riêng cho Lock 2 giống mẫu ảnh */
   .sort-card-list{display:grid;gap:10px;margin:18px 0}
   .sort-card-row{
-    display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center;
-    padding:12px;border-radius:16px;background:rgba(255,255,255,.035);
+    display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:12px;align-items:center;
+    padding:14px 16px;border-radius:16px;background:rgba(255,255,255,.035);
     border:1px solid rgba(255,255,255,.08);
   }
-  .sort-card-text{font-weight:750;line-height:1.4}
+  .sort-card-text{font-weight:750;line-height:1.4;font-size:15px}
   .assign-btn{
-    min-width:110px;padding:10px 12px;border-radius:12px;
+    padding:10px 16px;border-radius:12px;
     border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.06);
     color:var(--text);font-weight:800;cursor:pointer;transition:.18s ease;
+    display:flex;align-items:center;gap:6px;
   }
   .assign-btn:hover{transform:translateY(-1px);background:rgba(255,255,255,.1)}
   .assign-btn.active.opinion{
-    border-color:var(--cyan);background:rgba(77,228,255,.12);
-    box-shadow:0 0 0 3px rgba(77,228,255,.06)
+    border-color:var(--cyan);background:rgba(77,228,255,.16);
+    box-shadow:0 0 0 3px rgba(77,228,255,.08)
   }
   .assign-btn.active.discuss{
-    border-color:var(--purple);background:rgba(139,124,255,.14);
-    box-shadow:0 0 0 3px rgba(139,124,255,.07)
+    border-color:var(--violet);background:rgba(139,124,255,.18);
+    box-shadow:0 0 0 3px rgba(139,124,255,.08)
   }
   .sort-legend{
     display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0 16px
@@ -838,89 +821,15 @@
   }
   .legend-box strong{display:block;margin-bottom:4px}
   .legend-box span{font-size:12px;color:var(--muted)}
-  @media(max-width:680px){
-    .sort-card-row{grid-template-columns:1fr 1fr}
-    .sort-card-text{grid-column:1/-1}
-    .assign-btn{min-width:0;width:100%}
-    .sort-legend{grid-template-columns:1fr}
+  @media(max-width:760px){
+    .after-grid,.sort-legend{grid-template-columns:1fr}
+    .sort-card-row{grid-template-columns:1fr}
+    .assign-btn{width:100%;justify-content:center}
   }
-
-  .review-wrap{padding:8px 0}
-  .review-hero{text-align:center;margin-bottom:24px}
-  .review-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
-  .review-card{border:1px solid rgba(255,255,255,.09);border-radius:18px;background:rgba(255,255,255,.035);overflow:hidden}
-  .review-card summary{cursor:pointer;padding:17px 18px;font-weight:900;font-size:16px;list-style:none}
-  .review-card summary::-webkit-details-marker{display:none}
-  .review-card summary:after{content:"＋";float:right;color:var(--cyan)}
-  .review-card[open] summary:after{content:"−"}
-  .review-body{padding:0 18px 18px;color:var(--muted);line-height:1.6}
-  .review-body strong{color:var(--text)}
-  .review-body ul{padding-left:20px}
-  .review-body table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px}
-  .review-body th,.review-body td{padding:9px;border:1px solid rgba(255,255,255,.09);vertical-align:top;text-align:left}
-  .review-actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:24px}
-  @media(max-width:760px){.review-grid{grid-template-columns:1fr}}
-
-
-.effect-layer{position:fixed;inset:0;display:none;place-items:center;z-index:9999;pointer-events:none}
-.effect-layer.show{display:grid}
-.big-HP{font-size:150px;animation:HPBreak 1s ease forwards}
-.damage-text,.unlock-text{position:absolute;margin-top:210px;font-size:32px;font-weight:900}
-.damage-text{color:#ff6b7a}.unlock-text{color:#ffd166}
-.unlock-icon{font-size:120px;animation:unlockPop 1s ease forwards}
-.shake{animation:screenShake .25s}
-@keyframes HPBreak{0%{transform:scale(.2)}50%{transform:scale(1.3) rotate(-10deg)}100%{transform:scale(.2);opacity:0}}
-@keyframes unlockPop{0%{transform:scale(.2);opacity:0}50%{transform:scale(1.3)}100%{opacity:0}}
-@keyframes screenShake{20%{transform:translateX(-10px)}40%{transform:translateX(10px)}60%{transform:translateX(-6px)}}
-
-
-.hp-bar{
- width:180px;height:16px;border-radius:999px;
- background:rgba(255,255,255,.12);
- overflow:hidden;border:1px solid rgba(255,255,255,.12);
-}
-.hp-fill{
- height:100%;width:100%;
- background:linear-gradient(90deg,#4de4ff,#ffd166);
- transition:width .6s ease;
-}
-.hp-danger{
- animation:hpFlash .5s ease;
-}
-@keyframes hpFlash{
- 50%{filter:brightness(1.8)}
-}
-.cute-fail,.cute-win{
- text-align:center;padding:50px 20px;
-}
-.cute-icon{
- font-size:100px;
- animation:bounce .9s infinite alternate;
-}
-@keyframes bounce{
- from{transform:translateY(0)}
- to{transform:translateY(-12px)}
-}
-.confetti{
- font-size:45px;
- animation:spin .8s ease;
-}
-@keyframes spin{
- from{transform:scale(.2) rotate(0)}
- to{transform:scale(1) rotate(360deg)}
-}
-
-
-.progress-text{
- text-align:center;
- margin-top:10px;
- font-weight:800;
- color:var(--muted);
-}
 
 </style>
 </head>
-<body><div class="effect-layer" id="effectLayer"></div>
+<body>
 <div class="grid-overlay"></div>
 
 <div class="app">
@@ -936,9 +845,13 @@
     <div class="stats">
       <div class="health-wrap">
         <div class="health-title"><span>HP</span><span id="hpText">100%</span></div>
-        <div class="hp-bar">
-          <div class="hp-fill" id="hpFill"></div>
+        <div class="hearts" id="hearts">
+          <span class="heart">❤️</span>
+          <span class="heart">❤️</span>
+          <span class="heart">❤️</span>
+          <span class="heart">❤️</span>
         </div>
+        <div class="hp-bar"><div class="hp-fill" id="hpFill"></div></div>
       </div>
       <div class="stat"><span>Score</span><strong id="score">0</strong></div>
       <div class="stat"><span>Hint</span><strong id="hintCount">1</strong></div>
@@ -955,7 +868,8 @@ const scoreEl = document.getElementById('score');
 const hintCountEl = document.getElementById('hintCount');
 const locksDoneEl = document.getElementById('locksDone');
 const hpTextEl = document.getElementById('hpText');
-const HPsEl = document.getElementById('HPs');
+const heartsEl = document.getElementById('hearts');
+const hpFillEl = document.getElementById('hpFill');
 
 let score = 0;
 let current = -1;
@@ -973,7 +887,6 @@ function shuffledCopy(arr){
   }
   return copy;
 }
-
 
 const locks = [
   {
@@ -1020,41 +933,20 @@ const locks = [
   }
 ];
 
-
-function showDamageEffect(){
- const layer=document.getElementById("effectLayer");
- layer.innerHTML=`<div class="big-HP">💔</div><div class="damage-text">-25 HP</div>`;
- layer.classList.add("show");
- const bar=document.getElementById("hpFill");
- if(bar){bar.classList.add("hp-danger"); setTimeout(()=>bar.classList.remove("hp-danger"),500);}
- setTimeout(()=>layer.classList.remove("show"),1000);
-}
-function showUnlockEffect(){
- const l=document.getElementById("effectLayer");
- l.innerHTML='<div class="unlock-icon">🔓</div><div class="unlock-text">LOCK OPENED!</div>';
- l.classList.add("show");setTimeout(()=>l.classList.remove("show"),1000);
-}
-
-
-function getLockHint(index){
- const hints = [
- "Think about what happens before writing and what you should check after finishing.",
- "Focus on whether the essay asks you to support one position or discuss both views.",
- "A convincing argument needs a clear idea, explanation, and relevant support.",
- "Think about the difference between understanding the whole passage and finding specific information.",
- "Focus on the paragraph's overall meaning rather than small details.",
- "Check whether the question asks you to find specific information or the main idea."
- ];
- return hints[index] || "Read the question carefully and find the key requirement.";
-}
-
 function updateStats(){
   scoreEl.textContent = score;
   hintCountEl.textContent = hintLeft;
   locksDoneEl.textContent = completed.filter(Boolean).length + "/6";
   hpTextEl.textContent = hp + "%";
-  const hpFill=document.getElementById("hpFill");
-  if(hpFill) hpFill.style.width = hp + "%";
+  
+  if(hpFillEl) {
+    hpFillEl.style.width = hp + "%";
+  }
+
+  const activeHeartsCount = Math.ceil(hp / 25);
+  [...heartsEl.children].forEach((h, i) => {
+    h.classList.toggle("lost", i >= activeHeartsCount);
+  });
 }
 
 function nav(){
@@ -1114,7 +1006,24 @@ function useHint(){
   document.getElementById("hintbox").classList.add("show");
 }
 
+function showHeartBreak(){
+  const e=document.createElement("div");
+  e.className="heart-break";
+  e.textContent="💔";
+  document.body.appendChild(e);
+  setTimeout(()=>e.remove(),900);
+}
+
+function showSuccess(){
+  const e=document.createElement("div");
+  e.className="success-pop";
+  e.textContent="✨🎉";
+  document.body.appendChild(e);
+  setTimeout(()=>e.remove(),900);
+}
+
 function showFeedback(ok,msg){
+  if(ok) showSuccess();
   const box = document.getElementById("feedback");
   box.className = "feedback show " + (ok?"ok":"bad");
   box.innerHTML = ok ? `✅ ${msg}` : `⚠️ ${msg}`;
@@ -1132,7 +1041,6 @@ function submitCurrent(){
     score += attempts[current] === 0 ? 10 : attempts[current] === 1 ? 8 : 6;
     completed[current] = true;
     updateStats();
-    showUnlockEffect();
     const gained = attempts[current] === 0 ? 10 : attempts[current] === 1 ? 8 : 6;
     showFeedback(true, `Lock opened. +${gained} points.`);
     const btns = document.querySelectorAll(".controls button");
@@ -1143,22 +1051,20 @@ function submitCurrent(){
 
   attempts[current]++;
 
+  const attemptDots = document.querySelectorAll(".attempt-dot");
+  if(attempts[current] <= 3 && attemptDots[attempts[current]-1]) {
+    attemptDots[attempts[current]-1].classList.add("used");
+  }
+
   if(!damageTakenOnLock[current]){
     hp = Math.max(0, hp - 25);
     damageTakenOnLock[current] = true;
-    showDamageEffect();
+    showHeartBreak();
+    
     const panel = document.querySelector(".panel");
     panel.classList.remove("screen-hit");
     void panel.offsetWidth;
     panel.classList.add("screen-hit");
-
-    const visibleHearts = [...HPsEl.children].filter((h,i)=>i >= hp);
-    if(visibleHearts.length){
-      const target = visibleHearts[0];
-      target.classList.remove("damage");
-      void target.offsetWidth;
-      target.classList.add("damage");
-    }
   }
 
   updateStats();
@@ -1172,16 +1078,14 @@ function submitCurrent(){
     showFeedback(false, "No more guessing needed — here is a stronger clue so you can keep moving.");
     const box = document.getElementById("hintbox");
     box.classList.add("show");
-    box.innerHTML = "🧠 Strong hint: eliminate the obviously wrong choices first, then compare the remaining options with the question requirement. You will not lose another HP on this Lock.";
+    box.innerHTML = "🧠 Strong hint: eliminate the obviously wrong choices first, then compare the remaining options with the question requirement. You will not lose more HP on this Lock.";
   } else {
     showFeedback(false, `Not quite. You still have ${3-attempts[current]} attempt${3-attempts[current]===1?'':'s'} on this Lock.`);
   }
+}
 
-  goLock(current);
-  const fb = document.getElementById("feedback");
-  if(attempts[current] >= 3){
-    fb.className = "feedback show bad";
-    fb.innerHTML = "⚠️ Strong hint unlocked. Use the clue and rethink your choice carefully.< 5) goLock(current+1);
+function nextLock(){
+  if(current < 5) goLock(current+1);
   else finishGame();
 }
 
@@ -1312,22 +1216,20 @@ function checkSequence(){
     && !fakeAfterSelected;
 }
 
-/* LOCK 2 */
+/* LOCK 2 (Giao diện chuẩn theo đúng hình ảnh mẫu) */
 const sortItems = [
-  ["Give and support your own opinion","opinion"],
-  ["Focus on your position and reasons","opinion"],
-  ["Keep your opinion clear throughout","opinion"],
-  ["Discuss BOTH views and give your own opinion","discuss"],
-  ["Explain both views as part of the task","discuss"],
-  ["A possible structure: View 1 (weaker) → View 2 (stronger) + your opinion","discuss"]
+  ["A possible structure: View 1 (weaker) → View 2 (stronger) + your opinion", "discuss"],
+  ["Give and support your own opinion", "opinion"],
+  ["Discuss BOTH views and give your own opinion", "discuss"],
+  ["Focus on your position and reasons", "opinion"],
+  ["Keep your opinion clear throughout", "opinion"],
+  ["Explain both views as part of the task", "discuss"]
 ];
 
-let selectedChip = null;
-
 function renderSort(){
-  const c=document.getElementById("content");
-  const randomized=shuffledCopy(sortItems.map((x,i)=>[x[0],x[1],i]));
-  c.innerHTML=`
+  const c = document.getElementById("content");
+  const randomized = shuffledCopy(sortItems.map((x,i) => [x[0], x[1], i]));
+  c.innerHTML = `
     <div class="sort-legend">
       <div class="legend-box">
         <strong>🎯 Opinion Essay</strong>
@@ -1342,7 +1244,7 @@ function renderSort(){
     <p class="small">For each statement, tap ONE button. You can change your choice anytime before pressing Unlock.</p>
 
     <div class="sort-card-list">
-      ${randomized.map(x=>`
+      ${randomized.map(x => `
         <div class="sort-card-row" data-id="${x[2]}">
           <div class="sort-card-text">${x[0]}</div>
           <button class="assign-btn" data-choice="opinion" onclick="chooseEssayType(this,'opinion')">🎯 Opinion</button>
@@ -1351,33 +1253,22 @@ function renderSort(){
     </div>`;
 }
 
-function chooseEssayType(btn,type){
-  const row=btn.closest(".sort-card-row");
-  row.dataset.answer=type;
-  row.querySelectorAll(".assign-btn").forEach(b=>{
-    b.classList.remove("active","opinion","discuss");
+function chooseEssayType(btn, type){
+  const row = btn.closest(".sort-card-row");
+  row.dataset.answer = type;
+  row.querySelectorAll(".assign-btn").forEach(b => {
+    b.classList.remove("active", "opinion", "discuss");
   });
-  btn.classList.add("active",type);
+  btn.classList.add("active", type);
 }
 
-function selectSortChip(el){
-  document.querySelectorAll(".chip").forEach(x=>x.classList.remove("selected"));
-  selectedChip = el;
-  el.classList.add("selected");
-}
-function dropSelected(bucket){
-  if(!selectedChip) return;
-  bucket.appendChild(selectedChip);
-  selectedChip.classList.remove("selected");
-  selectedChip = null;
-}
 function checkSort(){
-  const rows=[...document.querySelectorAll(".sort-card-row")];
-  if(rows.length!==sortItems.length) return false;
-  if(rows.some(row=>!row.dataset.answer)) return false;
-  return rows.every(row=>{
-    const id=Number(row.dataset.id);
-    return row.dataset.answer===sortItems[id][1];
+  const rows = [...document.querySelectorAll(".sort-card-row")];
+  if(rows.length !== sortItems.length) return false;
+  if(rows.some(row => !row.dataset.answer)) return false;
+  return rows.every(row => {
+    const id = Number(row.dataset.id);
+    return row.dataset.answer === sortItems[id][1];
   });
 }
 
@@ -1419,11 +1310,13 @@ function renderReadingSkills(){
     <div class="input-row"><input id="skill1" placeholder="Type Skill 1"></div>
     <div class="input-row"><input id="skill2" placeholder="Type Skill 2"></div>`;
 }
+
 function norm(s){ return s.toLowerCase().trim().replace(/\s+/g," "); }
+
 function checkReadingSkills(){
-  const a = norm(document.getElementById("skill1").value);
-  const b = norm(document.getElementById("skill2").value);
-  return ["skimming","skim"].includes(a) && ["scanning","scan"].includes(b);
+  const a = norm(document.getElementById("skill1").value).replace(/ing$/,"");
+  const b = norm(document.getElementById("skill2").value).replace(/ing$/,"");
+  return ["skim","skimming"].includes(a) && ["scan","scanning"].includes(b);
 }
 
 /* LOCK 5 */
@@ -1436,6 +1329,7 @@ function renderPassword(){
     <div class="input-row"><input id="p2" placeholder="Phrase 2"></div>
     <p class="small">Type the exact key words from the lesson.</p>`;
 }
+
 function checkPassword(){
   const a=norm(document.getElementById("p1").value);
   const b=norm(document.getElementById("p2").value);
@@ -1473,27 +1367,26 @@ function checkStrategy(){
   return statements.every((x,i)=>document.querySelector(`[data-st="${i}"]`).value===x[1]);
 }
 
-
 function gameOver(){
- game.innerHTML=`
- <div class="cute-fail">
-   <div class="cute-icon">🥺</div>
-   <h2>Oh no...</h2>
-   <p style="color:var(--muted)">
-   It looks like we need to try again!<br>
-   Don't worry, every attempt helps you improve. Keep learning and try again! 💪
-   </p>
-   <button class="primary" onclick="restart()">Try Again</button>
- </div>`;
+  game.innerHTML = `
+    <div class="gameover">
+      <div class="gameover-icon">💔</div>
+      <div class="badge">MISSION FAILED • BUT YOU CAN RETRY</div>
+      <h2 style="font-size:clamp(32px,5vw,50px);margin:8px 0 10px">Game Over</h2>
+      <p style="color:var(--muted);max-width:620px;margin:0 auto 24px">
+        You ran out of hearts, but the game is designed to be forgiving. Restart and use what you learned from the previous locks.
+      </p>
+      <button class="primary" onclick="restart()">Try Again</button>
+    </div>`;
 }
 
 function finishGame(){
-  const rank = hp === 3 ? "S" : hp === 2 ? "A" : hp === 1 ? "B" : "C";
+  const rank = hp === 100 ? "S" : hp === 75 ? "A" : hp === 50 ? "B" : "C";
   game.innerHTML = `
     <div class="final">
-      <div class="confetti">🎉✨🎊</div>
+      <div class="trophy-wrap">🏆</div>
       <div class="badge">VAULT CLEARED • MASTER KEY FOUND</div>
-      <h2>IELTS Master Key Recovered! 🎉</h2>
+      <h2>IELTS Master Key Recovered!</h2>
       <p>You unlocked all six strategy locks and escaped the vault.</p>
       <div class="final-score">
         <span>Final Score</span>
@@ -1503,132 +1396,9 @@ function finishGame(){
         <span>Rank</span>
         <strong>${rank}</strong>
       </div>
-      <p class="small">Rank S = no HPs lost • A = 2 HPs left • B = 1 HP left.</p>
+      <p class="small">Rank S = full HP • A = 75% HP • B = 50% HP • C = 25% HP.</p>
       <br>
-      <div class="review-actions">
-        <button class="primary" onclick="showReview()">📚 Review & Study</button>
-        <button onclick="restart()">Play Again</button>
-      </div>
-    </div>`;
-}
-
-
-function showReview(){
-  game.innerHTML = `
-    <div class="review-wrap">
-      <div class="review-hero">
-        <div class="badge">STUDY HUB • ALL 6 LOCKS COMPLETED</div>
-        <h2 style="font-size:clamp(30px,5vw,48px);margin:10px 0">📚 Review & Study</h2>
-        <p style="color:var(--muted)">Review the key content after completing the challenge.</p>
-      </div>
-
-      <div class="review-grid">
-        <details class="review-card">
-          <summary>1. Writing — Before & After</summary>
-          <div class="review-body">
-            <strong>Before — Recognition</strong>
-            <ul>
-              <li>Identify the type of task and its main requirements.</li>
-              <li>Identify the topic, key information and keywords.</li>
-              <li>Identify what the task requires you to describe, compare, explain or discuss.</li>
-            </ul>
-            <strong>Question Analysis</strong>
-            <ul>
-              <li>Understand exactly what the question asks.</li>
-              <li>Identify all parts that need to be addressed.</li>
-              <li>Determine the scope and focus of the response.</li>
-              <li>Identify the appropriate time frame / perspective if relevant.</li>
-            </ul>
-            <strong>Brainstorming</strong>
-            <ul>
-              <li>Generate relevant main ideas / key features.</li>
-              <li>Select the most relevant and useful ideas.</li>
-              <li>Think of supporting details, explanations, comparisons or examples where necessary.</li>
-            </ul>
-            <strong>Plan the structure</strong>
-            <ul>
-              <li>Decide on a clear introduction, overview/main position and body paragraphs as appropriate.</li>
-              <li>Decide what main idea(s) will be discussed in each paragraph.</li>
-              <li>Make sure the planned structure addresses all parts of the task.</li>
-            </ul>
-            <strong>Organize ideas</strong>
-            <ul>
-              <li>Arrange ideas in a logical order and group related ideas together.</li>
-              <li>Decide how ideas will be compared, contrasted, explained or developed.</li>
-              <li>Select appropriate vocabulary, grammar and linking devices.</li>
-            </ul>
-            <strong>After writing</strong>
-            <ul>
-              <li><strong>TR:</strong> word range; sufficient development/support; stay focused and relevant.</li>
-              <li><strong>CC:</strong> logical sequence; paraphrasing; appropriate linking; clear references; modifiers placed correctly.</li>
-              <li><strong>GRA:</strong> countable/uncountable nouns, articles, singular/plural forms, punctuation, sentence structures, verb tense and pronouns.</li>
-              <li><strong>LR:</strong> collocations, spelling, topic vocabulary, word forms/choices, full forms and no unnecessary abbreviations/contractions.</li>
-            </ul>
-          </div>
-        </details>
-
-        <details class="review-card">
-          <summary>2. Opinion vs Discuss + Opinion</summary>
-          <div class="review-body">
-            <table>
-              <tr><th></th><th>Opinion Essay</th><th>Discuss + Opinion Essay</th></tr>
-              <tr><td><strong>Question</strong></td><td>Do you agree or disagree? / To what extent?</td><td>Discuss both views and give your own opinion.</td></tr>
-              <tr><td><strong>Main task</strong></td><td>Give and support your own opinion.</td><td>Discuss BOTH sides + give your own opinion.</td></tr>
-              <tr><td><strong>Body</strong></td><td>Usually focus on your position/reasons.</td><td>View 1 (weaker); View 2 (stronger) + your opinion.</td></tr>
-              <tr><td><strong>Opinion</strong></td><td>Clear throughout.</td><td>Clearly stated while both views are explained.</td></tr>
-              <tr><td><strong>Key phrase</strong></td><td>My opinion → reasons → defend viewpoint.</td><td>Both views → analyze both → own opinion.</td></tr>
-            </table>
-          </div>
-        </details>
-
-        <details class="review-card">
-          <summary>3. Convincing Argument</summary>
-          <div class="review-body">
-            <ul>
-              <li><strong>Clear central idea:</strong> one clear and relevant main point.</li>
-              <li><strong>Explain:</strong> explain why / how the idea is true.</li>
-              <li><strong>Specific example:</strong> concrete and relevant; avoid vague claims or unnecessary statistics.</li>
-              <li><strong>Elaborate:</strong> explain how the example supports the argument.</li>
-              <li><strong>Rebuttal, when appropriate:</strong> acknowledge the opposing view and respond logically.</li>
-            </ul>
-            <strong>One well-developed example &gt; many weak examples.</strong>
-          </div>
-        </details>
-
-        <details class="review-card">
-          <summary>4. Reading — Two Important Skills</summary>
-          <div class="review-body">
-            <p><strong>Skimming:</strong> reading quickly to understand the main idea and overall structure of the passage.</p>
-            <p><strong>Scanning:</strong> looking quickly for specific information, keywords, names, numbers, or synonyms related to the question.</p>
-          </div>
-        </details>
-
-        <details class="review-card">
-          <summary>5. Matching Headings</summary>
-          <div class="review-body">
-            <p><strong>Organizing words</strong> — List of headings</p>
-            <p><strong>Sentence function</strong> — Paragraphs</p>
-          </div>
-        </details>
-
-        <details class="review-card">
-          <summary>6. Matching Information vs Matching Headings</summary>
-          <div class="review-body">
-            <table>
-              <tr><th></th><th>Matching Information</th><th>Matching Headings</th></tr>
-              <tr><td><strong>What to match?</strong></td><td>Main idea or one detail of paragraph</td><td>Main idea of a paragraph</td></tr>
-              <tr><td><strong>Where to look?</strong></td><td>Scan paragraphs for specific information</td><td>Read paragraph and identify overall meaning</td></tr>
-              <tr><td><strong>Key question</strong></td><td>Which paragraph contains this information?</td><td>What is this paragraph mainly about?</td></tr>
-              <tr><td><strong>Important skill</strong></td><td>Scanning</td><td>Skimming + identifying main idea</td></tr>
-              <tr><td><strong>Important rule</strong></td><td>One paragraph can contain MORE THAN ONE piece of information.</td><td>Each paragraph is matched with ONE heading.</td></tr>
-            </table>
-          </div>
-        </details>
-      </div>
-
-      <div class="review-actions">
-        <button class="primary" onclick="restart()">Play Again</button>
-      </div>
+      <button class="primary" onclick="restart()">Play Again</button>
     </div>`;
 }
 
@@ -1636,7 +1406,7 @@ function restart(){
   score=0;
   current=-1;
   hintLeft=1;
-  hp=3;
+  hp=100;
   completed=[false,false,false,false,false,false];
   attempts=[0,0,0,0,0,0];
   damageTakenOnLock=[false,false,false,false,false,false];
