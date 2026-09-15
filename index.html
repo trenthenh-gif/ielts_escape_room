@@ -638,26 +638,26 @@
     letter-spacing:.11em;
     margin-bottom:7px;
   }
-  .hearts{
+  .HPs{
     display:flex;
     gap:6px;
     font-size:23px;
     line-height:1;
   }
-  .heart{
+  .HP{
     display:inline-block;
     transition:.25s ease;
     filter:drop-shadow(0 0 7px rgba(255,107,122,.25));
   }
-  .heart.lost{
+  .HP.lost{
     opacity:.22;
     filter:grayscale(1);
     transform:scale(.85);
   }
-  .heart.damage{
-    animation:heartHit .5s ease;
+  .HP.damage{
+    animation:HPHit .5s ease;
   }
-  @keyframes heartHit{
+  @keyframes HPHit{
     0%{transform:scale(1)}
     35%{transform:scale(1.35) rotate(-10deg)}
     70%{transform:scale(.8) rotate(8deg)}
@@ -861,9 +861,66 @@
   .review-actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:24px}
   @media(max-width:760px){.review-grid{grid-template-columns:1fr}}
 
+
+.effect-layer{position:fixed;inset:0;display:none;place-items:center;z-index:9999;pointer-events:none}
+.effect-layer.show{display:grid}
+.big-HP{font-size:150px;animation:HPBreak 1s ease forwards}
+.damage-text,.unlock-text{position:absolute;margin-top:210px;font-size:32px;font-weight:900}
+.damage-text{color:#ff6b7a}.unlock-text{color:#ffd166}
+.unlock-icon{font-size:120px;animation:unlockPop 1s ease forwards}
+.shake{animation:screenShake .25s}
+@keyframes HPBreak{0%{transform:scale(.2)}50%{transform:scale(1.3) rotate(-10deg)}100%{transform:scale(.2);opacity:0}}
+@keyframes unlockPop{0%{transform:scale(.2);opacity:0}50%{transform:scale(1.3)}100%{opacity:0}}
+@keyframes screenShake{20%{transform:translateX(-10px)}40%{transform:translateX(10px)}60%{transform:translateX(-6px)}}
+
+
+.hp-bar{
+ width:180px;height:16px;border-radius:999px;
+ background:rgba(255,255,255,.12);
+ overflow:hidden;border:1px solid rgba(255,255,255,.12);
+}
+.hp-fill{
+ height:100%;width:100%;
+ background:linear-gradient(90deg,#4de4ff,#ffd166);
+ transition:width .6s ease;
+}
+.hp-danger{
+ animation:hpFlash .5s ease;
+}
+@keyframes hpFlash{
+ 50%{filter:brightness(1.8)}
+}
+.cute-fail,.cute-win{
+ text-align:center;padding:50px 20px;
+}
+.cute-icon{
+ font-size:100px;
+ animation:bounce .9s infinite alternate;
+}
+@keyframes bounce{
+ from{transform:translateY(0)}
+ to{transform:translateY(-12px)}
+}
+.confetti{
+ font-size:45px;
+ animation:spin .8s ease;
+}
+@keyframes spin{
+ from{transform:scale(.2) rotate(0)}
+ to{transform:scale(1) rotate(360deg)}
+}
+
+
+.progress-text{
+ text-align:center;
+ margin-top:10px;
+ font-weight:800;
+ color:var(--muted);
+}
+
 </style>
 </head>
-<body>
+<body><div class="effect-layer" id="effectLayer"></div>
 <div class="grid-overlay"></div>
 
 <div class="app">
@@ -878,11 +935,9 @@
 
     <div class="stats">
       <div class="health-wrap">
-        <div class="health-title"><span>HP</span><span id="hpText">3/3</span></div>
-        <div class="hearts" id="hearts">
-          <span class="heart">❤️</span>
-          <span class="heart">❤️</span>
-          <span class="heart">❤️</span>
+        <div class="health-title"><span>HP</span><span id="hpText">100%</span></div>
+        <div class="hp-bar">
+          <div class="hp-fill" id="hpFill"></div>
         </div>
       </div>
       <div class="stat"><span>Score</span><strong id="score">0</strong></div>
@@ -900,12 +955,12 @@ const scoreEl = document.getElementById('score');
 const hintCountEl = document.getElementById('hintCount');
 const locksDoneEl = document.getElementById('locksDone');
 const hpTextEl = document.getElementById('hpText');
-const heartsEl = document.getElementById('hearts');
+const HPsEl = document.getElementById('HPs');
 
 let score = 0;
 let current = -1;
 let hintLeft = 1;
-let hp = 3;
+let hp = 100;
 let completed = [false,false,false,false,false,false];
 let attempts = [0,0,0,0,0,0];
 let damageTakenOnLock = [false,false,false,false,false,false];
@@ -965,14 +1020,41 @@ const locks = [
   }
 ];
 
+
+function showDamageEffect(){
+ const layer=document.getElementById("effectLayer");
+ layer.innerHTML=`<div class="big-HP">💔</div><div class="damage-text">-25 HP</div>`;
+ layer.classList.add("show");
+ const bar=document.getElementById("hpFill");
+ if(bar){bar.classList.add("hp-danger"); setTimeout(()=>bar.classList.remove("hp-danger"),500);}
+ setTimeout(()=>layer.classList.remove("show"),1000);
+}
+function showUnlockEffect(){
+ const l=document.getElementById("effectLayer");
+ l.innerHTML='<div class="unlock-icon">🔓</div><div class="unlock-text">LOCK OPENED!</div>';
+ l.classList.add("show");setTimeout(()=>l.classList.remove("show"),1000);
+}
+
+
+function getLockHint(index){
+ const hints = [
+ "Think about what happens before writing and what you should check after finishing.",
+ "Focus on whether the essay asks you to support one position or discuss both views.",
+ "A convincing argument needs a clear idea, explanation, and relevant support.",
+ "Think about the difference between understanding the whole passage and finding specific information.",
+ "Focus on the paragraph's overall meaning rather than small details.",
+ "Check whether the question asks you to find specific information or the main idea."
+ ];
+ return hints[index] || "Read the question carefully and find the key requirement.";
+}
+
 function updateStats(){
   scoreEl.textContent = score;
   hintCountEl.textContent = hintLeft;
   locksDoneEl.textContent = completed.filter(Boolean).length + "/6";
-  hpTextEl.textContent = hp + "/3";
-  [...heartsEl.children].forEach((h,i)=>{
-    h.classList.toggle("lost", i >= hp);
-  });
+  hpTextEl.textContent = hp + "%";
+  const hpFill=document.getElementById("hpFill");
+  if(hpFill) hpFill.style.width = hp + "%";
 }
 
 function nav(){
@@ -1050,6 +1132,7 @@ function submitCurrent(){
     score += attempts[current] === 0 ? 10 : attempts[current] === 1 ? 8 : 6;
     completed[current] = true;
     updateStats();
+    showUnlockEffect();
     const gained = attempts[current] === 0 ? 10 : attempts[current] === 1 ? 8 : 6;
     showFeedback(true, `Lock opened. +${gained} points.`);
     const btns = document.querySelectorAll(".controls button");
@@ -1061,14 +1144,15 @@ function submitCurrent(){
   attempts[current]++;
 
   if(!damageTakenOnLock[current]){
-    hp = Math.max(0, hp - 1);
+    hp = Math.max(0, hp - 25);
     damageTakenOnLock[current] = true;
+    showDamageEffect();
     const panel = document.querySelector(".panel");
     panel.classList.remove("screen-hit");
     void panel.offsetWidth;
     panel.classList.add("screen-hit");
 
-    const visibleHearts = [...heartsEl.children].filter((h,i)=>i >= hp);
+    const visibleHearts = [...HPsEl.children].filter((h,i)=>i >= hp);
     if(visibleHearts.length){
       const target = visibleHearts[0];
       target.classList.remove("damage");
@@ -1088,7 +1172,7 @@ function submitCurrent(){
     showFeedback(false, "No more guessing needed — here is a stronger clue so you can keep moving.");
     const box = document.getElementById("hintbox");
     box.classList.add("show");
-    box.innerHTML = "🧠 Strong hint: eliminate the obviously wrong choices first, then compare the remaining options with the question requirement. You will not lose another heart on this Lock.";
+    box.innerHTML = "🧠 Strong hint: eliminate the obviously wrong choices first, then compare the remaining options with the question requirement. You will not lose another HP on this Lock.";
   } else {
     showFeedback(false, `Not quite. You still have ${3-attempts[current]} attempt${3-attempts[current]===1?'':'s'} on this Lock.`);
   }
@@ -1097,18 +1181,7 @@ function submitCurrent(){
   const fb = document.getElementById("feedback");
   if(attempts[current] >= 3){
     fb.className = "feedback show bad";
-    fb.innerHTML = "⚠️ Strong hint unlocked. You can keep trying without losing another heart on this Lock.";
-    const hb = document.getElementById("hintbox");
-    hb.classList.add("show");
-    hb.innerHTML = "🧠 Eliminate the trap choices first, then re-check what the question is actually asking.";
-  } else {
-    fb.className = "feedback show bad";
-    fb.innerHTML = `⚠️ Not quite. ${3-attempts[current]} attempt${3-attempts[current]===1?'':'s'} left on this Lock.`;
-  }
-}
-
-function nextLock(){
-  if(current < 5) goLock(current+1);
+    fb.innerHTML = "⚠️ Strong hint unlocked. Use the clue and rethink your choice carefully.< 5) goLock(current+1);
   else finishGame();
 }
 
@@ -1402,25 +1475,25 @@ function checkStrategy(){
 
 
 function gameOver(){
-  game.innerHTML = `
-    <div class="gameover">
-      <div class="gameover-icon">💔</div>
-      <div class="badge">MISSION FAILED • BUT YOU CAN RETRY</div>
-      <h2 style="font-size:clamp(32px,5vw,50px);margin:8px 0 10px">Game Over</h2>
-      <p style="color:var(--muted);max-width:620px;margin:0 auto 24px">
-        You ran out of hearts, but the game is designed to be forgiving. Restart and use what you learned from the previous locks.
-      </p>
-      <button class="primary" onclick="restart()">Try Again</button>
-    </div>`;
+ game.innerHTML=`
+ <div class="cute-fail">
+   <div class="cute-icon">🥺</div>
+   <h2>Oh no...</h2>
+   <p style="color:var(--muted)">
+   It looks like we need to try again!<br>
+   Don't worry, every attempt helps you improve. Keep learning and try again! 💪
+   </p>
+   <button class="primary" onclick="restart()">Try Again</button>
+ </div>`;
 }
 
 function finishGame(){
   const rank = hp === 3 ? "S" : hp === 2 ? "A" : hp === 1 ? "B" : "C";
   game.innerHTML = `
     <div class="final">
-      <div class="trophy-wrap">🏆</div>
+      <div class="confetti">🎉✨🎊</div>
       <div class="badge">VAULT CLEARED • MASTER KEY FOUND</div>
-      <h2>IELTS Master Key Recovered!</h2>
+      <h2>IELTS Master Key Recovered! 🎉</h2>
       <p>You unlocked all six strategy locks and escaped the vault.</p>
       <div class="final-score">
         <span>Final Score</span>
@@ -1430,7 +1503,7 @@ function finishGame(){
         <span>Rank</span>
         <strong>${rank}</strong>
       </div>
-      <p class="small">Rank S = no hearts lost • A = 2 hearts left • B = 1 heart left.</p>
+      <p class="small">Rank S = no HPs lost • A = 2 HPs left • B = 1 HP left.</p>
       <br>
       <div class="review-actions">
         <button class="primary" onclick="showReview()">📚 Review & Study</button>
