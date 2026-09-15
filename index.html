@@ -844,6 +844,23 @@
     .assign-btn{min-width:0;width:100%}
     .sort-legend{grid-template-columns:1fr}
   }
+
+  .review-wrap{padding:8px 0}
+  .review-hero{text-align:center;margin-bottom:24px}
+  .review-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+  .review-card{border:1px solid rgba(255,255,255,.09);border-radius:18px;background:rgba(255,255,255,.035);overflow:hidden}
+  .review-card summary{cursor:pointer;padding:17px 18px;font-weight:900;font-size:16px;list-style:none}
+  .review-card summary::-webkit-details-marker{display:none}
+  .review-card summary:after{content:"＋";float:right;color:var(--cyan)}
+  .review-card[open] summary:after{content:"−"}
+  .review-body{padding:0 18px 18px;color:var(--muted);line-height:1.6}
+  .review-body strong{color:var(--text)}
+  .review-body ul{padding-left:20px}
+  .review-body table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px}
+  .review-body th,.review-body td{padding:9px;border:1px solid rgba(255,255,255,.09);vertical-align:top;text-align:left}
+  .review-actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:24px}
+  @media(max-width:760px){.review-grid{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -1415,7 +1432,130 @@ function finishGame(){
       </div>
       <p class="small">Rank S = no hearts lost • A = 2 hearts left • B = 1 heart left.</p>
       <br>
-      <button class="primary" onclick="restart()">Play Again</button>
+      <div class="review-actions">
+        <button class="primary" onclick="showReview()">📚 Review & Study</button>
+        <button onclick="restart()">Play Again</button>
+      </div>
+    </div>`;
+}
+
+
+function showReview(){
+  game.innerHTML = `
+    <div class="review-wrap">
+      <div class="review-hero">
+        <div class="badge">STUDY HUB • ALL 6 LOCKS COMPLETED</div>
+        <h2 style="font-size:clamp(30px,5vw,48px);margin:10px 0">📚 Review & Study</h2>
+        <p style="color:var(--muted)">Review the key content after completing the challenge.</p>
+      </div>
+
+      <div class="review-grid">
+        <details class="review-card">
+          <summary>1. Writing — Before & After</summary>
+          <div class="review-body">
+            <strong>Before — Recognition</strong>
+            <ul>
+              <li>Identify the type of task and its main requirements.</li>
+              <li>Identify the topic, key information and keywords.</li>
+              <li>Identify what the task requires you to describe, compare, explain or discuss.</li>
+            </ul>
+            <strong>Question Analysis</strong>
+            <ul>
+              <li>Understand exactly what the question asks.</li>
+              <li>Identify all parts that need to be addressed.</li>
+              <li>Determine the scope and focus of the response.</li>
+              <li>Identify the appropriate time frame / perspective if relevant.</li>
+            </ul>
+            <strong>Brainstorming</strong>
+            <ul>
+              <li>Generate relevant main ideas / key features.</li>
+              <li>Select the most relevant and useful ideas.</li>
+              <li>Think of supporting details, explanations, comparisons or examples where necessary.</li>
+            </ul>
+            <strong>Plan the structure</strong>
+            <ul>
+              <li>Decide on a clear introduction, overview/main position and body paragraphs as appropriate.</li>
+              <li>Decide what main idea(s) will be discussed in each paragraph.</li>
+              <li>Make sure the planned structure addresses all parts of the task.</li>
+            </ul>
+            <strong>Organize ideas</strong>
+            <ul>
+              <li>Arrange ideas in a logical order and group related ideas together.</li>
+              <li>Decide how ideas will be compared, contrasted, explained or developed.</li>
+              <li>Select appropriate vocabulary, grammar and linking devices.</li>
+            </ul>
+            <strong>After writing</strong>
+            <ul>
+              <li><strong>TR:</strong> word range; sufficient development/support; stay focused and relevant.</li>
+              <li><strong>CC:</strong> logical sequence; paraphrasing; appropriate linking; clear references; modifiers placed correctly.</li>
+              <li><strong>GRA:</strong> countable/uncountable nouns, articles, singular/plural forms, punctuation, sentence structures, verb tense and pronouns.</li>
+              <li><strong>LR:</strong> collocations, spelling, topic vocabulary, word forms/choices, full forms and no unnecessary abbreviations/contractions.</li>
+            </ul>
+          </div>
+        </details>
+
+        <details class="review-card">
+          <summary>2. Opinion vs Discuss + Opinion</summary>
+          <div class="review-body">
+            <table>
+              <tr><th></th><th>Opinion Essay</th><th>Discuss + Opinion Essay</th></tr>
+              <tr><td><strong>Question</strong></td><td>Do you agree or disagree? / To what extent?</td><td>Discuss both views and give your own opinion.</td></tr>
+              <tr><td><strong>Main task</strong></td><td>Give and support your own opinion.</td><td>Discuss BOTH sides + give your own opinion.</td></tr>
+              <tr><td><strong>Body</strong></td><td>Usually focus on your position/reasons.</td><td>View 1 (weaker); View 2 (stronger) + your opinion.</td></tr>
+              <tr><td><strong>Opinion</strong></td><td>Clear throughout.</td><td>Clearly stated while both views are explained.</td></tr>
+              <tr><td><strong>Key phrase</strong></td><td>My opinion → reasons → defend viewpoint.</td><td>Both views → analyze both → own opinion.</td></tr>
+            </table>
+          </div>
+        </details>
+
+        <details class="review-card">
+          <summary>3. Convincing Argument</summary>
+          <div class="review-body">
+            <ul>
+              <li><strong>Clear central idea:</strong> one clear and relevant main point.</li>
+              <li><strong>Explain:</strong> explain why / how the idea is true.</li>
+              <li><strong>Specific example:</strong> concrete and relevant; avoid vague claims or unnecessary statistics.</li>
+              <li><strong>Elaborate:</strong> explain how the example supports the argument.</li>
+              <li><strong>Rebuttal, when appropriate:</strong> acknowledge the opposing view and respond logically.</li>
+            </ul>
+            <strong>One well-developed example &gt; many weak examples.</strong>
+          </div>
+        </details>
+
+        <details class="review-card">
+          <summary>4. Reading — Two Important Skills</summary>
+          <div class="review-body">
+            <p><strong>Skimming:</strong> reading quickly to understand the main idea and overall structure of the passage.</p>
+            <p><strong>Scanning:</strong> looking quickly for specific information, keywords, names, numbers, or synonyms related to the question.</p>
+          </div>
+        </details>
+
+        <details class="review-card">
+          <summary>5. Matching Headings</summary>
+          <div class="review-body">
+            <p><strong>Organizing words</strong> — List of headings</p>
+            <p><strong>Sentence function</strong> — Paragraphs</p>
+          </div>
+        </details>
+
+        <details class="review-card">
+          <summary>6. Matching Information vs Matching Headings</summary>
+          <div class="review-body">
+            <table>
+              <tr><th></th><th>Matching Information</th><th>Matching Headings</th></tr>
+              <tr><td><strong>What to match?</strong></td><td>Main idea or one detail of paragraph</td><td>Main idea of a paragraph</td></tr>
+              <tr><td><strong>Where to look?</strong></td><td>Scan paragraphs for specific information</td><td>Read paragraph and identify overall meaning</td></tr>
+              <tr><td><strong>Key question</strong></td><td>Which paragraph contains this information?</td><td>What is this paragraph mainly about?</td></tr>
+              <tr><td><strong>Important skill</strong></td><td>Scanning</td><td>Skimming + identifying main idea</td></tr>
+              <tr><td><strong>Important rule</strong></td><td>One paragraph can contain MORE THAN ONE piece of information.</td><td>Each paragraph is matched with ONE heading.</td></tr>
+            </table>
+          </div>
+        </details>
+      </div>
+
+      <div class="review-actions">
+        <button class="primary" onclick="restart()">Play Again</button>
+      </div>
     </div>`;
 }
 
